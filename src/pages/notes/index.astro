@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const notes = (await getCollection('notes', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<BaseLayout title="Notes — Xuanshi Xi">
+  <section class="section">
+    <h2 class="page-title">Notes</h2>
+    <p class="page-intro">A growing set of technical notes. The goal is not to publish frequently, but to keep explanations that have become stable enough to reuse.</p>
+  </section>
+
+  <section class="section">
+    {notes.length === 0 ? (
+      <p class="page-intro">No public notes yet.</p>
+    ) : (
+      notes.map((note) => (
+        <article class="note-item">
+          <h3 class="note-title"><a href={`/notes/${note.id}/`}>{note.data.title}</a></h3>
+          {note.data.description && <p class="note-description">{note.data.description}</p>}
+          <div class="meta">
+            {note.data.date.toISOString().slice(0, 10)}
+            {note.data.tags.length > 0 && ` · ${note.data.tags.join(' · ')}`}
+          </div>
+        </article>
+      ))
+    )}
+  </section>
+</BaseLayout>
