@@ -1,251 +1,59 @@
 ---
-const projects = [
-  {
-    title: 'Communication-domain LLM Research',
-    desc: 'Exploring large language models, retrieval, reasoning, and domain knowledge in communication systems.',
-  },
-  {
-    title: 'Todo Agent',
-    desc: 'An agent-driven application built around FastAPI, PostgreSQL, React, and tool calling.',
-  },
-  {
-    title: 'Computer Systems',
-    desc: 'Learning computer systems from ISA and NEMU upward, with an emphasis on first principles.',
-  },
-];
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { profile } from '../data/profile';
+import { projects } from '../data/projects';
 
-const notes = [
-  'Transformer and language modeling',
-  'Tokenizer / BPE',
-  'Computer systems and NEMU',
-  'LLM training and inference',
-];
+const recentNotes = (await getCollection('notes', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 4);
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="description" content="Xuanshi Xi — AI systems, large language models, and computer systems." />
-    <title>Xuanshi Xi</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⌘</text></svg>" />
-    <style is:global>
-      :root {
-        --bg: #f7f7f4;
-        --text: #171717;
-        --muted: #6f6f68;
-        --line: #d9d9d2;
-        --accent: #315f76;
-        --max-width: 820px;
-      }
+<BaseLayout>
+  <section class="section prose-width">
+    <h2 class="section-label">Bio</h2>
+    <p>{profile.bio}</p>
+  </section>
 
-      * { box-sizing: border-box; }
+  <section class="section prose-width">
+    <h2 class="section-label">Currently</h2>
+    <p>{profile.currently}</p>
+  </section>
 
-      html { scroll-behavior: smooth; }
+  <section class="section">
+    <h2 class="section-label">Selected Work</h2>
+    {projects.slice(0, 3).map((project) => (
+      <article class="work-item">
+        <h3 class="work-title">{project.title}</h3>
+        <p class="work-description">{project.description}</p>
+        <div class="meta">{project.meta}</div>
+      </article>
+    ))}
+    <p class="meta"><a href="/projects/">all projects →</a></p>
+  </section>
 
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--text);
-        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        line-height: 1.65;
-      }
+  <section class="section">
+    <h2 class="section-label">Recent Notes</h2>
+    {recentNotes.length === 0 ? (
+      <p class="page-intro">Notes will appear here as they are published.</p>
+    ) : (
+      recentNotes.map((note) => (
+        <article class="note-item">
+          <h3 class="note-title"><a href={`/notes/${note.id}/`}>{note.data.title}</a></h3>
+          <div class="meta">{note.data.date.toISOString().slice(0, 10)}</div>
+        </article>
+      ))
+    )}
+    <p class="meta"><a href="/notes/">all notes →</a></p>
+  </section>
 
-      a {
-        color: var(--accent);
-        text-decoration: none;
-      }
-
-      a:hover { text-decoration: underline; }
-
-      main {
-        width: min(calc(100% - 40px), var(--max-width));
-        margin: 0 auto;
-        padding: 72px 0 56px;
-      }
-
-      .eyebrow,
-      .mono,
-      nav,
-      .meta,
-      footer {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      }
-
-      .eyebrow {
-        color: var(--muted);
-        font-size: 0.9rem;
-        margin-bottom: 8px;
-      }
-
-      h1 {
-        font-size: clamp(2.3rem, 7vw, 4.6rem);
-        line-height: 1;
-        letter-spacing: -0.05em;
-        margin: 0;
-        font-weight: 700;
-      }
-
-      .cn-name {
-        margin-top: 10px;
-        font-size: 1.05rem;
-        color: var(--muted);
-      }
-
-      .intro {
-        margin-top: 32px;
-        max-width: 680px;
-        font-size: 1.08rem;
-      }
-
-      nav {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 18px;
-        margin-top: 30px;
-        font-size: 0.95rem;
-      }
-
-      section {
-        border-top: 1px solid var(--line);
-        margin-top: 56px;
-        padding-top: 20px;
-      }
-
-      section h2 {
-        margin: 0 0 18px;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--muted);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      }
-
-      .project {
-        display: grid;
-        grid-template-columns: 42px 1fr;
-        gap: 12px;
-        padding: 16px 0;
-      }
-
-      .project + .project { border-top: 1px dashed var(--line); }
-
-      .index {
-        color: var(--muted);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      }
-
-      .project h3 {
-        margin: 0 0 4px;
-        font-size: 1rem;
-      }
-
-      .project p,
-      .notes li,
-      .status p {
-        color: #3e3e3a;
-        margin: 0;
-      }
-
-      .notes {
-        margin: 0;
-        padding-left: 1.1rem;
-      }
-
-      .notes li { margin: 6px 0; }
-
-      .terminal {
-        margin-top: 20px;
-        padding: 18px 20px;
-        border: 1px solid var(--line);
-        background: #efefe9;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        font-size: 0.92rem;
-      }
-
-      .prompt { color: var(--accent); }
-      .terminal div + div { margin-top: 8px; }
-
-      footer {
-        margin-top: 64px;
-        padding-top: 18px;
-        border-top: 1px solid var(--line);
-        color: var(--muted);
-        font-size: 0.85rem;
-        display: flex;
-        justify-content: space-between;
-        gap: 16px;
-        flex-wrap: wrap;
-      }
-
-      @media (max-width: 640px) {
-        main { padding-top: 48px; }
-        .project { grid-template-columns: 32px 1fr; }
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <header>
-        <div class="eyebrow">~/home</div>
-        <h1>XUANSHI XI</h1>
-        <div class="cn-name">席轩石</div>
-
-        <p class="intro">
-          M.Sc. student interested in <strong>AI systems</strong>, <strong>large language models</strong>, and
-          <strong>computer systems</strong>. I prefer understanding systems from first principles and building things that connect models with real software.
-        </p>
-
-        <nav aria-label="Primary">
-          <a href="#about">about</a>
-          <a href="#projects">projects</a>
-          <a href="#notes">notes</a>
-          <a href="https://github.com/dyingcowboy">github</a>
-        </nav>
-      </header>
-
-      <section id="about" class="status">
-        <h2>Currently</h2>
-        <p>
-          Learning language modeling, training and inference, and computer systems; building small engineering projects to connect theory with implementation.
-        </p>
-      </section>
-
-      <section id="projects">
-        <h2>Selected Work</h2>
-        {projects.map((project, i) => (
-          <article class="project">
-            <div class="index">[{String(i + 1).padStart(2, '0')}]</div>
-            <div>
-              <h3>{project.title}</h3>
-              <p>{project.desc}</p>
-            </div>
-          </article>
-        ))}
-      </section>
-
-      <section id="notes">
-        <h2>Notes</h2>
-        <ul class="notes">
-          {notes.map((note) => <li>{note}</li>)}
-        </ul>
-      </section>
-
-      <section>
-        <h2>Identity</h2>
-        <div class="terminal" aria-label="Terminal style identity block">
-          <div><span class="prompt">$</span> whoami</div>
-          <div>Xuanshi Xi</div>
-          <div><span class="prompt">$</span> interests</div>
-          <div>AI systems / computer systems / engineering</div>
-        </div>
-      </section>
-
-      <footer>
-        <span>© 2026 Xuanshi Xi</span>
-        <span>last updated: Sep 2026</span>
-      </footer>
-    </main>
-  </body>
-</html>
+  <section class="section">
+    <h2 class="section-label">Identity</h2>
+    <div class="prompt-block" aria-label="Terminal-style signature">
+      <div class="prompt-line"><span class="prompt">$</span> whoami</div>
+      <div class="prompt-line">{profile.name}</div>
+      <div class="prompt-line"><span class="prompt">$</span> interests</div>
+      <div class="prompt-line">{profile.interests.join(' / ')}</div>
+    </div>
+  </section>
+</BaseLayout>
