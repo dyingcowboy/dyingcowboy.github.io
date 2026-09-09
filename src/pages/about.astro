@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { profile } from '../data/profile';
+---
+
+<BaseLayout title={`About — ${profile.name}`}>
+  <section class="section">
+    <h2 class="page-title">About</h2>
+    <p class="page-intro">{profile.bio}</p>
+  </section>
+
+  <section class="section prose-width">
+    <h2 class="section-label">Interests</h2>
+    <p>{profile.interests.join(' · ')}</p>
+  </section>
+
+  <section class="section prose-width">
+    <h2 class="section-label">Currently</h2>
+    <p>{profile.currently}</p>
+  </section>
+</BaseLayout>
