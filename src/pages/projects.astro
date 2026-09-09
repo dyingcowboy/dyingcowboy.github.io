@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { projects } from '../data/projects';
+---
+
+<BaseLayout title="Projects — Xuanshi Xi">
+  <section class="section">
+    <h2 class="page-title">Projects</h2>
+    <p class="page-intro">Selected research and engineering work. This page is intentionally concise; details can grow with the projects.</p>
+  </section>
+
+  <section class="section">
+    {projects.map((project) => (
+      <article class="work-item">
+        <h3 class="work-title">{project.title}</h3>
+        <p class="work-description">{project.description}</p>
+        <div class="meta">{project.meta}</div>
+      </article>
+    ))}
+  </section>
+</BaseLayout>
