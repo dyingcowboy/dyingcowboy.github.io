@@ -52,8 +52,6 @@ const recentNotes = (await getCollection('notes', ({ data }) => !data.draft))
     <div class="prompt-block" aria-label="Terminal-style signature">
       <div class="prompt-line"><span class="prompt">$</span> whoami</div>
       <div class="prompt-line">{profile.name}</div>
-      <div class="prompt-line"><span class="prompt">$</span> interests</div>
-      <div class="prompt-line">{profile.interests.join(' / ')}</div>
     </div>
   </section>
 </BaseLayout>
