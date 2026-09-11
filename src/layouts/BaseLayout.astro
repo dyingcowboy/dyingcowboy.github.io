@@ -15,21 +15,21 @@ const {
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
   <body>
+    <Header />
     <div class="site-shell">
-      <Header />
       <main>
         <slot />
       </main>
-      <Footer />
     </div>
+    <Footer />
   </body>
 </html>
