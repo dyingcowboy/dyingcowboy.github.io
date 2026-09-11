@@ -7,9 +7,21 @@ import { projects } from '../data/projects';
 const recentNotes = (await getCollection('notes', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 4);
+
+const formatDate = (date: Date) => new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+}).format(date);
 ---
 
 <BaseLayout>
+  <section class="home-lead">
+    <p class="role">{profile.role}</p>
+    <h1>{profile.name}<span class="cn-name"> / {profile.chineseName}</span></h1>
+    <p class="interests">{profile.interests.join(' · ')}</p>
+  </section>
+
   <section class="section prose-width">
     <h2 class="section-label">Bio</h2>
     <p>{profile.bio}</p>
@@ -37,12 +49,14 @@ const recentNotes = (await getCollection('notes', ({ data }) => !data.draft))
     {recentNotes.length === 0 ? (
       <p class="page-intro">Notes will appear here as they are published.</p>
     ) : (
-      recentNotes.map((note) => (
-        <article class="note-item">
-          <h3 class="note-title"><a href={`/notes/${note.id}/`}>{note.data.title}</a></h3>
-          <div class="meta">{note.data.date.toISOString().slice(0, 10)}</div>
-        </article>
-      ))
+      <div class="archive-list">
+        {recentNotes.map((note) => (
+          <article class="archive-item">
+            <div class="archive-title"><a href={`/notes/${note.id}/`}>{note.data.title}</a></div>
+            <time class="archive-date" datetime={note.data.date.toISOString()}>{formatDate(note.data.date)}</time>
+          </article>
+        ))}
+      </div>
     )}
     <p class="meta"><a href="/notes/">all notes →</a></p>
   </section>
