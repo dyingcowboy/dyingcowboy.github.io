@@ -1,6 +1,7 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import 'katex/dist/katex.min.css';
 import '../../styles/prose.css';
 
 export async function getStaticPaths() {
@@ -17,15 +18,29 @@ interface Props {
 
 const { note } = Astro.props;
 const { Content } = await render(note);
+const date = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+}).format(note.data.date);
 ---
 
 <BaseLayout title={`${note.data.title} — Xuanshi Xi`} description={note.data.description ?? note.data.title}>
-  <article class="section prose">
-    <h1>{note.data.title}</h1>
-    <div class="meta">
-      {note.data.date.toISOString().slice(0, 10)}
-      {note.data.tags.length > 0 && ` · ${note.data.tags.join(' · ')}`}
+  <article class="article">
+    <header class="article-header">
+      <h1 class="article-title">{note.data.title}</h1>
+      <div class="article-meta">
+        <time datetime={note.data.date.toISOString()}>{date}</time>
+        {note.data.tags.length > 0 && ` · ${note.data.tags.join(' · ')}`}
+      </div>
+    </header>
+
+    <div class="prose">
+      <Content />
     </div>
-    <Content />
+
+    <footer class="section meta">
+      <a href="/notes/">← notes archive</a>
+    </footer>
   </article>
 </BaseLayout>
