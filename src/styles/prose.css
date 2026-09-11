@@ -42,16 +42,6 @@
 .prose h3 { font-size: 1.16rem; margin: 2rem 0 0.8rem; }
 .prose h4 { font-size: 1rem; margin: 1.7rem 0 0.7rem; }
 
-.prose h2::before,
-.prose h3::before {
-  color: #a6a6a6;
-  font-weight: 400;
-  margin-right: 0.45em;
-}
-
-.prose h2::before { content: "#"; }
-.prose h3::before { content: "##"; }
-
 .prose p,
 .prose ul,
 .prose ol,
@@ -104,6 +94,20 @@
 .prose pre code {
   padding: 0;
   background: transparent;
+}
+
+.prose .mermaid {
+  margin: 1.7rem auto;
+  padding: 0;
+  background: transparent !important;
+  color: inherit;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.prose .mermaid svg {
+  max-width: 100%;
+  height: auto;
 }
 
 .prose blockquote {
