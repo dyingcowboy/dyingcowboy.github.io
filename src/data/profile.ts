@@ -2,9 +2,9 @@ export const profile = {
   name: 'Xuanshi Xi',
   chineseName: '席轩石',
   role: 'M.Sc. Student',
-  interests: ['AI Systems', 'Large Language Models', 'Computer Systems'],
-  bio: 'I am a master\'s student interested in understanding and building AI systems from first principles, with a broader interest in computer systems and engineering.',
-  currently: 'Learning language modeling, training and inference, and computer systems; building small systems that connect models with real software.',
+  focus: 'Stanford CS336 · Language Modeling from Scratch',
+  bio: 'I am a master\'s student currently working through Stanford CS336 to understand language modeling from first principles. This site is mainly a place to keep my study notes and learning record.',
+  currently: 'Working through CS336, implementing the course assignments, and writing notes on tokenization, Transformer components, and language-model training.',
   links: {
     github: 'https://github.com/dyingcowboy',
   },
