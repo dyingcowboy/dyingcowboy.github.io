@@ -2,7 +2,6 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { profile } from '../data/profile';
-import { projects } from '../data/projects';
 
 const recentNotes = (await getCollection('notes', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -19,7 +18,7 @@ const formatDate = (date: Date) => new Intl.DateTimeFormat('en-US', {
   <section class="home-lead">
     <p class="role">{profile.role}</p>
     <h1>{profile.name}<span class="cn-name"> / {profile.chineseName}</span></h1>
-    <p class="interests">{profile.interests.join(' · ')}</p>
+    <p class="interests">{profile.focus}</p>
   </section>
 
   <section class="section prose-width">
@@ -30,18 +29,6 @@ const formatDate = (date: Date) => new Intl.DateTimeFormat('en-US', {
   <section class="section prose-width">
     <h2 class="section-label">Currently</h2>
     <p>{profile.currently}</p>
-  </section>
-
-  <section class="section">
-    <h2 class="section-label">Selected Work</h2>
-    {projects.slice(0, 3).map((project) => (
-      <article class="work-item">
-        <h3 class="work-title">{project.title}</h3>
-        <p class="work-description">{project.description}</p>
-        <div class="meta">{project.meta}</div>
-      </article>
-    ))}
-    <p class="meta"><a href="/projects/">all projects →</a></p>
   </section>
 
   <section class="section">
