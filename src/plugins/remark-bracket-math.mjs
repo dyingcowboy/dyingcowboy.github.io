@@ -16,8 +16,19 @@ export default function remarkBracketMath() {
 
           if (match) {
             return {
-              type: 'math',
-              value: match[1].trim(),
+              type: 'paragraph',
+              data: {
+                hName: 'div',
+                hProperties: {
+                  className: ['math', 'math-display'],
+                },
+              },
+              children: [
+                {
+                  type: 'text',
+                  value: match[1].trim(),
+                },
+              ],
             };
           }
         }
