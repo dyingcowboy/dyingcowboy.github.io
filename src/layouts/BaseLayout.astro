@@ -10,7 +10,7 @@ interface Props {
 
 const {
   title = 'Xuanshi Xi',
-  description = 'Xuanshi Xi — M.Sc. student studying Stanford CS336 and language modeling from first principles.',
+  description = '席轩石的学习与实践档案。记录项目、学习和思考，以及每一步如何形成。',
 } = Astro.props;
 ---
 
@@ -21,15 +21,29 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
   </head>
   <body>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
     <Header />
-    <div class="site-shell">
-      <main>
+    <div class="site-workspace">
+      <div class="workspace-bar"><span>PERSONAL LEARNING ARCHIVE</span><a href="/trajectories/?import=1">本地导入 <span aria-hidden="true">↗</span></a></div>
+      <main id="main-content" class="site-shell">
         <slot />
       </main>
+      <Footer />
     </div>
-    <Footer />
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <script>
+      document.addEventListener('keydown', (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+          event.preventDefault();
+          const search = document.querySelector<HTMLInputElement>('[data-archive-search]');
+          if (search) search.focus();
+          else window.location.href = '/trajectories/?search=1';
+        }
+      });
+    </script>
   </body>
 </html>

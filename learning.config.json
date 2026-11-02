@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "projects": [
+    {
+      "id": "cmu-agent",
+      "title": "CMU Agent",
+      "description": "CMU 11-768 AI Agents：工具使用、上下文、记忆与多智能体协作。",
+      "status": "active",
+      "repositories": [{ "id": "cmu", "path": "cmu-agents" }],
+      "notes": [{ "repoId": "cmu", "path": "notes" }],
+      "publishNotes": false
+    },
+    {
+      "id": "jyy-gse-2026",
+      "title": "JYY GSE 2026",
+      "description": "生成式软件工程：从需求与架构到 Agent Native 开发。",
+      "status": "active",
+      "repositories": [{ "id": "gse", "path": "jyy-gse-2026" }],
+      "notes": [],
+      "publishNotes": false
+    },
+    {
+      "id": "jyy-os-2026",
+      "title": "JYY OS 2026",
+      "description": "操作系统：通过并发、系统抽象与实验建立理解。",
+      "status": "active",
+      "repositories": [
+        { "id": "os", "path": "jyy-os-2026" },
+        { "id": "os-lab", "path": "jyy-os-2026/lab/os2026" }
+      ],
+      "notes": [{ "repoId": "os", "path": "notes/concurrency.md" }],
+      "publishNotes": true
+    }
+  ]
+}

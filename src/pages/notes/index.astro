@@ -1,6 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { publicLearning } from '../../lib/learning';
+import { notesHtml } from '../../lib/learning-presentation';
+import '../../styles/learning.css';
 
 const notes = (await getCollection('notes', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -12,13 +15,16 @@ const formatDate = (date: Date) => new Intl.DateTimeFormat('en-US', {
 }).format(date);
 ---
 
-<BaseLayout title="Notes — Xuanshi Xi">
+<BaseLayout title="笔记 — Xuanshi Xi">
   <section class="section">
-    <h1 class="page-title">Notes</h1>
-    <p class="page-intro">Technical notes kept as a chronological archive. Most of them grow out of study, implementation, and debugging.</p>
+    <span class="eyebrow">NOTES & UNDERSTANDING</span>
+    <h1 class="page-title">把理解，留成文字。</h1>
+    <p class="page-intro">从学习、实现和调试中沉淀的阶段笔记。<a href="/trajectories/">在轨迹中回看问题怎样展开 →</a></p>
   </section>
 
+  <section class="section archive-list" aria-label="课程笔记"><div class="section-heading"><h2>课程中的个人笔记</h2></div><div data-learning-notes set:html={notesHtml(publicLearning)} /></section>
   <section class="section archive-list" aria-label="Notes archive">
+    <div class="section-heading"><h2>过去的笔记</h2></div>
     {notes.length === 0 ? (
       <p class="page-intro">No public notes yet.</p>
     ) : (
@@ -30,4 +36,5 @@ const formatDate = (date: Date) => new Intl.DateTimeFormat('en-US', {
       ))
     )}
   </section>
+  <script>import '../../scripts/learning-page';</script>
 </BaseLayout>

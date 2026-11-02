@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { publicLearning } from '../../../lib/learning';
+import type { LearningNote } from '../../../lib/learning';
+import '../../../styles/prose.css';
+import '../../../styles/learning.css';
+import 'katex/dist/katex.min.css';
+export function getStaticPaths() {
+  return publicLearning.notes.map((note) => ({ params: { note: note.id }, props: { note } }));
+}
+const { note } = Astro.props as {note: LearningNote};
+---
+<BaseLayout title={`${note.title} — Xuanshi Xi`}>
+  <article class="article">
+    <header class="article-header"><a class="back-link" href={`/learning/${note.projectId}/`}>← 课程记录</a><h1 class="article-title">{note.title}</h1><p class="article-meta">{note.repoId} / {note.path} · {note.commit?.slice(0, 10) ?? '未提交版本'}{note.modified ? ' · 含未提交修改' : ''}</p>{note.sourceUrl && <a href={note.sourceUrl} class="learning-source">查看仓库基线文件 ↗</a>}<p class="learning-sync">内容指纹 {note.sha256.slice(0, 16)}</p></header>
+    <div class="prose" set:html={note.html} />
+  </article>
+</BaseLayout>

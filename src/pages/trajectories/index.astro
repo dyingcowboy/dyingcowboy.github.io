@@ -1,0 +1,292 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { publicTrajectories } from '../../lib/archive';
+import { cardHtml } from '../../lib/presentation';
+---
+<BaseLayout title="轨迹 — Xuanshi Xi">
+  <header class="page-heading"><div><span class="eyebrow">THE LEARNING LOG</span><h1 class="page-title">每一步，都有迹可循。</h1><p class="page-intro">从提出问题到形成理解。沿着一次次交互，回看学习与实践的过程。</p></div><div class="heading-actions"><button class="button" id="export-records"><Icon name="download" size={15} />导出本地</button><button class="button primary" id="open-import"><Icon name="upload" size={15} />导入记录</button></div></header>
+  <div class="archive-toolbar"><label class="archive-search"><Icon name="search" size={17} /><span class="sr-only">搜索标题、主题或交互内容</span><input id="archive-search" data-archive-search type="search" placeholder="搜索问题、主题，或一段交互…" autocomplete="off" /><kbd>⌘ K</kbd></label><label class="filter-select"><span class="sr-only">按来源筛选</span><select id="source-filter"><option value="">全部来源</option><option value="codex">Codex</option><option value="deepseek">DeepSeek harness</option></select></label><label class="filter-select"><span class="sr-only">按模型筛选</span><select id="model-filter"><option value="">全部模型</option></select></label></div>
+  <div class="archive-tabs-row"><div class="archive-tabs" role="group" aria-label="按类别筛选"><button data-category="" class="active" aria-pressed="true">全部<span></span></button><button data-category="project" aria-pressed="false">项目<span></span></button><button data-category="study" aria-pressed="false">学习<span></span></button><button data-category="knowledge" aria-pressed="false">思考<span></span></button></div><label class="filter-select compact"><span class="sr-only">按状态筛选</span><select id="status-filter"><option value="">全部状态</option><option value="ongoing">进行中</option><option value="completed">已完成</option></select></label></div>
+  <div class="archive-summary"><p id="result-count" role="status" aria-live="polite">正在载入轨迹…</p><div><label class="check-label"><input type="checkbox" id="hide-demos" />隐藏演示</label><button class="text-button" id="reset-filters">重置筛选</button></div></div>
+  <div id="active-topic" class="notice" hidden></div>
+  <div id="archive-results" class="trajectory-grid" set:html={publicTrajectories.map((t) => cardHtml(t)).join('')} />
+  <div id="archive-empty" class="empty-state" hidden><Icon name="search" size={28} /><h2>还没有匹配的轨迹</h2><p>换一个关键词，或重置筛选条件。你也可以导入一段自己的学习记录。</p><button class="button" id="empty-reset">重置筛选</button></div>
+  <div class="archive-footnote"><Icon name="note" size={14} /><p>标为「演示」的条目用于展示功能。你导入的记录只保存在当前浏览器；导出后可备份，或选择整理好的内容加入公开档案。</p></div>
+  <noscript><p class="notice">启用 JavaScript 后可以导入、搜索和阅读交互。现有笔记可直接阅读。</p></noscript>
+  <dialog id="import-dialog" aria-labelledby="import-title"><div class="dialog-heading"><h2 id="import-title">留下一段新的轨迹</h2><button class="icon-button" data-close-dialog aria-label="关闭导入窗口"><Icon name="close" /></button></div><p class="dialog-description">选择 Codex 或 DeepSeek harness 的记录。内容会在本机解析，保存在当前浏览器。</p><form id="import-form"><label class="file-drop" id="file-drop"><Icon name="upload" size={28} /><strong>选择文件，或拖放到这里</strong><span>Codex .jsonl · DeepSeek .jsonl.zstd · 档案 .json</span><input id="import-files" type="file" multiple accept=".json,.jsonl,.zstd,.zst" required /><span id="selected-files">可以一次导入多个文件</span></label><div class="field-row"><label class="field"><span>归入类别</span><select id="import-category"><option value="">沿用记录中的分类</option><option value="project">项目</option><option value="study">学习</option><option value="knowledge">思考</option></select></label><label class="field"><span>学习主题 / 项目名称</span><input id="import-topic" placeholder="例如：JYY OS" maxlength="100" /></label></div><label class="field"><span>组织方式</span><select id="import-target"><option value="">每段会话单独建一条轨迹</option></select><span class="field-hint">也可把不同工具的会话接到同一条轨迹中。重复导入会更新会话，并保留你的整理。</span></label><p id="import-error" class="form-error" role="alert" hidden></p><div class="dialog-actions"><button type="button" class="button" data-close-dialog>取消</button><button type="submit" class="button primary" id="import-submit">导入并保存</button></div></form></dialog>
+  <script src="../../scripts/archive.ts"></script>
+</BaseLayout>
+<style is:global>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0
+  }
+
+  .archive-toolbar {
+    display: flex;
+    gap: 10px
+  }
+
+  .archive-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: white;
+    padding: 0 13px;
+    min-height: 43px;
+    flex: 1;
+    min-width: 0;
+    color: #95a197
+  }
+
+  .archive-search input {
+    border: 0;
+    background: none;
+    outline: none;
+    width: 100%;
+    font-size: 12px;
+    color: var(--text);
+    min-height: 42px
+  }
+
+  .archive-search:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px #28765d12
+  }
+
+  .archive-search input:focus-visible {
+    outline: 0
+  }
+
+  .archive-search kbd {
+    font: 9px var(--mono);
+    white-space: nowrap;
+    padding: 2px 5px;
+    border: 1px solid #e4e9e4;
+    border-radius: 3px;
+    color: #9aa59b;
+    background: #f8faf8
+  }
+
+  .filter-select select {
+    height: 43px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: white;
+    padding: 0 27px 0 11px;
+    font-size: 11px;
+    color: var(--muted);
+    max-width: 180px
+  }
+
+  .archive-tabs-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    margin-top: 20px;
+    gap: 15px
+  }
+
+  .archive-tabs {
+    display: flex;
+    gap: 25px
+  }
+
+  .archive-tabs button {
+    min-height: 46px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    font-size: 12px;
+    color: var(--muted);
+    padding: 0 0 8px;
+    display: flex;
+    gap: 7px;
+    align-items: center
+  }
+
+  .archive-tabs button.active {
+    color: var(--accent);
+    border-color: var(--accent);
+    font-weight: 600
+  }
+
+  .archive-tabs button>span {
+    font: 9px var(--mono);
+    color: #9ca79e
+  }
+
+  .filter-select.compact select {
+    height: 32px;
+    border: 0;
+    background: transparent;
+    padding-right: 20px
+  }
+
+  .archive-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin: 17px 0;
+    color: var(--muted);
+    font-size: 10px
+  }
+
+  .archive-summary p {
+    margin: 0
+  }
+
+  .archive-summary>div {
+    display: flex;
+    gap: 17px;
+    align-items: center
+  }
+
+  .check-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer
+  }
+
+  .check-label input {
+    accent-color: var(--accent);
+    width: 13px;
+    height: 13px
+  }
+
+  .text-button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    font-size: 11px;
+    min-height: 30px
+  }
+
+  .archive-footnote {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-top: 28px;
+    color: #87958b
+  }
+
+  .archive-footnote>svg {
+    margin-top: 3px
+  }
+
+  .archive-footnote p {
+    margin: 0;
+    font-size: 10px;
+    line-height: 1.9
+  }
+
+  .file-drop {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    align-items: center;
+    justify-content: center;
+    min-height: 190px;
+    border: 1px dashed #baccbc;
+    border-radius: 6px;
+    background: #f8faf7;
+    text-align: center;
+    cursor: pointer;
+    padding: 20px
+  }
+
+  .file-drop>svg {
+    color: #83a58c;
+    margin-bottom: 3px
+  }
+
+  .file-drop strong {
+    font-size: 13px;
+    font-weight: 500
+  }
+
+  .file-drop>span {
+    font-size: 10px;
+    color: #8b9a8d
+  }
+
+  .file-drop #selected-files {
+    color: var(--accent);
+    overflow-wrap: anywhere
+  }
+
+  .file-drop input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer
+  }
+
+  .file-drop:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px
+  }
+
+  .file-drop.dragging {
+    background: #eaf3e9;
+    border-color: var(--accent)
+  }
+
+  #active-topic {
+    margin-bottom: 15px
+  }
+
+  @media(max-width:600px) {
+    .archive-toolbar {
+      flex-wrap: wrap
+    }
+    .archive-search {
+      flex-basis: 100%
+    }
+    .filter-select {
+      flex: 1
+    }
+    .filter-select select {
+      width: 100%;
+      max-width: none
+    }
+    .archive-tabs {
+      gap: 22px
+    }
+    .archive-tabs-row .filter-select {
+      flex: none
+    }
+    .archive-summary {
+      font-size: 10px;
+      align-items: flex-start
+    }
+    .archive-summary>div {
+      gap: 10px
+    }
+    .check-label {
+      font-size: 10px
+    }
+    .archive-tabs button {
+      font-size: 12px
+    }
+  }
+</style>

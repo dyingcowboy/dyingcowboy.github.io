@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "generatedAt": "2026-11-02T12:35:07.396Z",
+  "vault": "人工工具箱",
+  "title": "人生工具箱",
+  "modules": [
+    {
+      "index": 1,
+      "slug": "foundations",
+      "name": "基础认知：人性与社会的知识经验",
+      "noteCount": 0,
+      "chars": 0,
+      "maturity": "empty",
+      "notes": []
+    },
+    {
+      "index": 2,
+      "slug": "thinking",
+      "name": "思维工具",
+      "noteCount": 0,
+      "chars": 0,
+      "maturity": "empty",
+      "notes": []
+    },
+    {
+      "index": 3,
+      "slug": "execution",
+      "name": "目标规划与执行",
+      "noteCount": 0,
+      "chars": 0,
+      "maturity": "empty",
+      "notes": []
+    },
+    {
+      "index": 4,
+      "slug": "decisions",
+      "name": "决策能力",
+      "noteCount": 0,
+      "chars": 0,
+      "maturity": "empty",
+      "notes": []
+    },
+    {
+      "index": 5,
+      "slug": "relationships",
+      "name": "处理关系",
+      "noteCount": 0,
+      "chars": 0,
+      "maturity": "empty",
+      "notes": []
+    },
+    {
+      "index": 6,
+      "slug": "resilience",
+      "name": "心理能力",
+      "noteCount": 0,
+      "chars": 0,
+      "maturity": "empty",
+      "notes": []
+    }
+  ],
+  "totals": {
+    "modules": 6,
+    "modulesWithContent": 0,
+    "notes": 0,
+    "chars": 0,
+    "inbox": 1,
+    "inboxChars": 107
+  }
+}

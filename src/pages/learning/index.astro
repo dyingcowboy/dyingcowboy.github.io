@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { publicLearning } from '../../lib/learning';
+import { projectHtml } from '../../lib/learning-presentation';
+import '../../styles/learning.css';
+---
+<BaseLayout title="课程 — Xuanshi Xi">
+  <section class="section">
+    <span class="eyebrow">LEARNING IN PROGRESS</span>
+    <h1 class="page-title">正在学，也留下过程。</h1>
+    <p class="page-intro">课程连接到各自的仓库：代码在哪里，笔记写到了哪里，问题怎样一步步展开。</p>
+    <p class="learning-sync" data-learning-sync>{publicLearning.generatedAt ? `公开快照 · ${new Date(publicLearning.generatedAt).toLocaleDateString('zh-CN')}` : '等待首次同步'}</p>
+  </section>
+  <div class="learning-grid" data-learning-grid set:html={publicLearning.projects.map((project) => projectHtml(project)).join('')} />
+  <script>import '../../scripts/learning-page';</script>
+</BaseLayout>

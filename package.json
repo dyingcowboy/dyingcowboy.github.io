@@ -6,15 +6,25 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "node --test tests/*.test.mjs",
+    "import:records": "node scripts/import-trajectories.mjs",
+    "sync:toolbox": "node scripts/sync-toolbox.mjs",
+    "sync:learning": "node scripts/sync-learning.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.1",
     "astro": "^7.3.2",
     "astro-mermaid": "^2.1.0",
+    "fzstd": "^0.1.1",
     "katex": "^0.16.22",
     "mermaid": "^11.17.2",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "typescript": "^6.0.3"
   }
 }

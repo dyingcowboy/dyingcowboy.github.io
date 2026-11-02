@@ -1,58 +1,460 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { profile } from '../data/profile';
-
-const recentNotes = (await getCollection('notes', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 4);
-
-const formatDate = (date: Date) => new Intl.DateTimeFormat('en-US', {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-}).format(date);
+import Icon from '../components/Icon.astro';
+import { publicTrajectories } from '../lib/archive';
+import { cardHtml, formatDate } from '../lib/presentation';
+import { displayModules, formatChars } from '../lib/toolbox';
+import { publicLearning } from '../lib/learning';
+const toolboxModules = displayModules();
+const notes = (await getCollection('notes', ({ data }) => !data.draft)).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 3);
+const recent = [...publicTrajectories].sort((a,b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? '')).slice(0,4);
 ---
-
 <BaseLayout>
-  <section class="home-lead">
-    <p class="role">{profile.role}</p>
-    <h1>{profile.name}<span class="cn-name"> / {profile.chineseName}</span></h1>
-    <p class="interests">{profile.focus}</p>
-  </section>
-
-  <section class="section prose-width">
-    <h2 class="section-label">Bio</h2>
-    <p>{profile.bio}</p>
-  </section>
-
-  <section class="section prose-width">
-    <h2 class="section-label">Currently</h2>
-    <p>{profile.currently}</p>
-  </section>
-
-  <section class="section">
-    <h2 class="section-label">Recent Notes</h2>
-    {recentNotes.length === 0 ? (
-      <p class="page-intro">Notes will appear here as they are published.</p>
-    ) : (
-      <div class="archive-list">
-        {recentNotes.map((note) => (
-          <article class="archive-item">
-            <div class="archive-title"><a href={`/notes/${note.id}/`}>{note.data.title}</a></div>
-            <time class="archive-date" datetime={note.data.date.toISOString()}>{formatDate(note.data.date)}</time>
-          </article>
-        ))}
-      </div>
-    )}
-    <p class="meta"><a href="/notes/">all notes →</a></p>
-  </section>
-
-  <section class="section">
-    <h2 class="section-label">Identity</h2>
-    <div class="prompt-block" aria-label="Terminal-style signature">
-      <div class="prompt-line"><span class="prompt">$</span> whoami</div>
-      <div class="prompt-line">{profile.name}</div>
+  <section class="home-hero">
+    <div class="hero-copy">
+      <span class="eyebrow">XUANSHI XI <span class="hero-slash">/</span> 席轩石</span>
+      <h1>学习的结果，<br /><span>和走过的路。</span></h1>
+      <p>记录我如何提出问题、动手尝试、修正理解。<br />项目、学习与日常思考，在这里慢慢连接。</p>
+      <div class="hero-actions"><a class="button primary" href="/trajectories/">浏览学习轨迹 <Icon name="arrow" size={15} /></a><a class="hero-github" href="https://github.com/dyingcowboy"><Icon name="github" size={16} />GitHub<Icon name="upRight" size={13} /></a></div>
+      <div class="hero-caption"><span class="live-dot"></span> Learning by building. Thinking in public.</div>
+    </div>
+    <div class="process-sketch" aria-label="学习过程：提出问题、动手尝试、修正理解">
+      <span class="sketch-label">A LITTLE MORE UNDERSTANDING</span>
+      <div class="sketch-line"><span class="sketch-number">01</span><div><strong>从一个问题开始</strong><span>What am I trying to understand?</span></div><Icon name="spark" size={17} /></div>
+      <div class="sketch-connector"><span></span><em>ask · explore</em></div>
+      <div class="sketch-line"><span class="sketch-number">02</span><div><strong>在尝试中寻找答案</strong><span>Build, test, and change my mind.</span></div><Icon name="terminal" size={17} /></div>
+      <div class="sketch-connector"><span></span><em>try · reflect</em></div>
+      <div class="sketch-line last"><span class="sketch-number">03</span><div><strong>留下一点新的理解</strong><span>And a better question for tomorrow.</span></div><Icon name="route" size={17} /></div>
     </div>
   </section>
+  <section class="section topics-section">
+    <div class="section-heading"><h2>正在关注 <span>CURRENT EXPLORATIONS</span></h2></div>
+    <div class="topic-grid">
+      <a class="topic-card" href="/learning/cmu-agent/"><div class="topic-icon"><Icon name="model" size={19} /></div><div><h3>CMU Agent</h3><p>Agent 课程 · 学习与实验</p></div><Icon name="upRight" size={15} /></a>
+      <a class="topic-card" href="/learning/jyy-gse-2026/"><div class="topic-icon violet"><Icon name="terminal" size={19} /></div><div><h3>JYY GSE 2026</h3><p>生成式软件工程 · 需求与架构</p></div><Icon name="upRight" size={15} /></a>
+      <a class="topic-card" href="/learning/jyy-os-2026/"><div class="topic-icon blue"><Icon name="book" size={19} /></div><div><h3>JYY OS 2026</h3><p>操作系统 · 并发、抽象与系统</p></div><Icon name="upRight" size={15} /></a>
+    </div>
+  </section>
+  <section class="section home-toolbox">
+    <div class="section-heading"><h2>人生工具箱 <span>LIFE TOOLBOX</span></h2><a href="/toolbox/">打开工具箱 <Icon name="arrow" size={14} /></a></div>
+    <p class="home-toolbox-intro">做事、相处、和自己相处——六根柱子，边写边长。</p>
+    <div class="toolbox-strip">
+      {toolboxModules.map((module) => <a class="toolbox-chip" href={`/toolbox/#module-${module.slug}`} data-maturity={module.maturity}><span class="toolbox-chip-index">{String(module.index).padStart(2, '0')}</span><span class="toolbox-chip-name">{module.short}</span><span class="toolbox-chip-meta">{module.chars > 0 ? `${formatChars(module.chars)} 字` : '待建'}</span></a>)}
+    </div>
+  </section>
+  <section class="section">
+    <div class="section-heading"><h2>最近的轨迹 <span>THE PROCESS, NOT JUST THE OUTPUT</span></h2><a href="/trajectories/">查看全部 <Icon name="arrow" size={14} /></a></div>
+    <div class="notice home-notice"><Icon name="note" size={15} /><span id="home-archive-notice">当前公开轨迹为功能演示。本机同步或导入后，可以整理、检索和导出真实记录。</span></div>
+    <div class="trajectory-grid" id="recent-trajectories" set:html={recent.map((t) => cardHtml(t)).join('')} />
+  </section>
+  <section class="section home-notes">
+    <div class="section-heading"><h2>沉淀为笔记 <span>NOTES & UNDERSTANDING</span></h2><a href="/notes/">全部笔记 <Icon name="arrow" size={14} /></a></div>
+    <div>{publicLearning.notes.slice(0, 3).map((note) => <article class="home-note-row"><span class="note-index">↗</span><div><h3><a href={`/learning/notes/${note.id}/`}>{note.title}</a></h3><span>{publicLearning.projects.find((project) => project.id === note.projectId)?.title} · 仓库中的笔记</span></div><time datetime={note.observedAt}>{formatDate(note.observedAt, true)}</time><Icon name="upRight" size={16} /></article>)}{notes.slice(0, Math.max(0, 3 - publicLearning.notes.length)).map((note, i) => <article class="home-note-row"><span class="note-index">0{i + 1}</span><div><h3><a href={`/notes/${note.id}/`}>{note.data.title}</a></h3><span>历史笔记 · {note.data.tags.slice(0, 3).join(' · ')}</span></div><time datetime={note.data.date.toISOString()}>{formatDate(note.data.date.toISOString(), true)}</time><Icon name="upRight" size={16} /></article>)}</div>
+  </section>
+  <script>
+    import { loadArchive, showToast } from '../lib/archive';
+    import { cardHtml } from '../lib/presentation';
+    loadArchive().then((records) => {
+      const list = document.getElementById('recent-trajectories');
+      if (list) list.innerHTML = records.slice(0, 4).map((record) => cardHtml(record)).join('');
+      const notice = document.getElementById('home-archive-notice');
+      if (notice && records.some((record) => !record.demo)) notice.textContent = '正在显示本机同步或导入的记录。完整对话留在本机，公开内容由你选择。';
+    }).catch((error) => showToast(error instanceof Error ? error.message : '本地记录加载失败。', true));
+  </script>
 </BaseLayout>
+<style>
+  .home-hero {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 48px;
+    align-items: center;
+    padding: 13px 0 50px;
+    border-bottom: 1px solid var(--line)
+  }
+
+  .hero-slash {
+    color: #b0bcb3;
+    margin: 0 9px
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(32px,3.7vw,49px);
+    font-weight: 600;
+    line-height: 1.42;
+    letter-spacing: -1.7px;
+    margin: 21px 0 17px
+  }
+
+  .hero-copy h1>span {
+    color: #8a9990
+  }
+
+  .hero-copy>p {
+    font-size: 13px;
+    line-height: 2;
+    color: var(--muted);
+    margin: 0
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-top: 26px
+  }
+
+  .hero-github {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--body-text);
+    font-size: 12px
+  }
+
+  .hero-caption {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font: 9px var(--mono);
+    letter-spacing: .1px;
+    color: #8b9b90;
+    margin-top: 25px
+  }
+
+  .live-dot {
+    height: 5px;
+    width: 5px;
+    border-radius: 50%;
+    background: #6d9a79
+  }
+
+  .process-sketch {
+    padding: 25px 25px 24px;
+    background: linear-gradient(140deg,#f3f7f2,#f9faf8);
+    border: 1px solid #e4ece2;
+    border-radius: 7px;
+    position: relative
+  }
+
+  .sketch-label {
+    font: 8px var(--mono);
+    letter-spacing: 1px;
+    color: #99aa9b;
+    display: block;
+    margin-bottom: 25px
+  }
+
+  .sketch-line {
+    display: flex;
+    align-items: center;
+    gap: 13px
+  }
+
+  .sketch-number {
+    font: 9px var(--mono);
+    color: #6c9576;
+    border: 1px solid #d4e2d3;
+    background: #f8fbf7;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-content: center;
+    flex-shrink: 0
+  }
+
+  .sketch-line strong {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .3px
+  }
+
+  .sketch-line div>span {
+    display: block;
+    font: 8px var(--mono);
+    color: #8d9c90;
+    margin-top: 4px;
+    line-height: 1.6
+  }
+
+  .sketch-line>svg {
+    color: #8eac94;
+    margin-left: auto
+  }
+
+  .sketch-connector {
+    height: 35px;
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    padding-left: 13px
+  }
+
+  .sketch-connector>span {
+    height: 27px;
+    border-left: 1px dashed #c5d4c5
+  }
+
+  .sketch-connector em {
+    font: 8px var(--mono);
+    color: #a7b3a7
+  }
+
+  .last .sketch-number {
+    color: white;
+    background: #6d9276;
+    border-color: #6d9276
+  }
+
+  .topic-grid {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 13px
+  }
+
+  .topic-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: 6px;
+    padding: 17px 15px;
+    color: var(--text);
+    transition: border-color .2s
+  }
+
+  .topic-card:hover {
+    text-decoration: none;
+    border-color: #b4c4b8
+  }
+
+  .topic-card>svg {
+    margin-left: auto;
+    color: #9ba89f
+  }
+
+  .topic-icon {
+    background: #edf4ed;
+    color: #6d9275;
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 38px;
+    flex-shrink: 0
+  }
+
+  .topic-icon.blue {
+    background: #edf1f6;
+    color: #7893b0
+  }
+
+  .topic-icon.violet {
+    background: #f2eef6;
+    color: #9a82b1
+  }
+
+  .topic-card h3 {
+    font-size: 11px;
+    font-weight: 600;
+    margin: 0 0 5px
+  }
+
+  .topic-card p {
+    font-size: 9px;
+    color: #8a958d;
+    margin: 0
+  }
+
+  .home-notice {
+    margin-bottom: 18px;
+    font-size: 10px
+  }
+
+  .home-note-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line)
+  }
+
+  .home-note-row:last-child {
+    border: 0
+  }
+
+  .note-index {
+    font: 10px var(--mono);
+    color: #a6b1a9
+  }
+
+  .home-note-row>div {
+    flex: 1
+  }
+
+  .home-note-row h3 {
+    margin: 0 0 5px;
+    font-size: 13px;
+    font-weight: 500
+  }
+
+  .home-note-row h3 a {
+    color: var(--text)
+  }
+
+  .home-note-row>div>span {
+    color: #8d9a90;
+    font-size: 10px
+  }
+
+  .home-note-row time {
+    font: 10px var(--mono);
+    color: #96a198
+  }
+
+  .home-note-row>svg {
+    color: #94a397
+  }
+
+  .home-toolbox-intro {
+    margin: -2px 0 16px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .toolbox-strip {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .toolbox-chip {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 13px 11px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    transition: border-color .2s, background .2s;
+  }
+
+  .toolbox-chip:hover {
+    text-decoration: none;
+    border-color: #b4c4b8;
+    background: #fcfdfc;
+  }
+
+  .toolbox-chip[data-maturity="empty"] {
+    border-style: dashed;
+    border-color: #dde5df;
+    background: #fafbfa;
+  }
+
+  .toolbox-chip-index {
+    font: 8px var(--mono);
+    color: #a6b1a9;
+  }
+
+  .toolbox-chip-name {
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.45;
+  }
+
+  .toolbox-chip[data-maturity="empty"] .toolbox-chip-name {
+    color: #66746d;
+  }
+
+  .toolbox-chip-meta {
+    font: 8px var(--mono);
+    color: #a2aea6;
+    margin-top: auto;
+  }
+
+  @media(max-width:1200px) {
+    .toolbox-strip {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media(max-width:560px) {
+    .toolbox-strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media(max-width:1200px) {
+    .home-hero {
+      gap: 25px
+    }
+    .topic-grid {
+      grid-template-columns: 1fr
+    }
+    .topic-card {
+      padding: 12px 16px
+    }
+    .topic-card h3 {
+      font-size: 12px
+    }
+    .topic-card p {
+      font-size: 11px
+    }
+    .topic-card>div:not(.topic-icon) {
+      display: flex;
+      align-items: center;
+      gap: 20px
+    }
+    .topic-card h3 {
+      margin: 0
+    }
+    .process-sketch {
+      padding: 23px 18px
+    }
+    .sketch-label {
+      font-size: 7px
+    }
+    .sketch-line div>span {
+      font-size: 7px
+    }
+  }
+
+  @media(max-width:560px) {
+    .home-hero {
+      grid-template-columns: 1fr;
+      gap: 30px;
+      padding-bottom: 30px
+    }
+    .hero-copy h1 {
+      font-size: 36px
+    }
+    .process-sketch {
+      padding: 21px
+    }
+    .sketch-line div>span {
+      font-size: 9px
+    }
+    .sketch-label {
+      font-size: 8px
+    }
+    .topic-card>div:not(.topic-icon) {
+      display: block
+    }
+    .topic-card h3 {
+      margin-bottom: 4px
+    }
+    .hero-caption {
+      font-size: 8px
+    }
+    .home-note-row {
+      gap: 12px
+    }
+    .home-note-row time {
+      font-size: 9px
+    }
+  }
+</style>

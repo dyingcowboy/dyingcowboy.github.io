@@ -1,0 +1,540 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+---
+<BaseLayout title="阅读轨迹 — Xuanshi Xi">
+  <a class="back-link" href="/trajectories/"><Icon name="arrow" size={14} />全部轨迹</a>
+  <div id="trajectory-detail" aria-busy="true"><div class="empty-state"><Icon name="route" size={28} /><p>正在打开这段轨迹…</p></div></div>
+  <dialog id="edit-dialog" aria-labelledby="edit-title"><div class="dialog-heading"><h2 id="edit-title">整理这段轨迹</h2><button class="icon-button" data-close-dialog aria-label="关闭编辑窗口"><Icon name="close" /></button></div><p class="dialog-description">记录你的目标和理解。整理保存在本机，可随时导出。</p><form id="edit-form"><label class="field"><span>标题</span><input name="title" required maxlength="160" /></label><label class="field"><span>这段经历想解决什么？</span><textarea name="description" rows="3" maxlength="2000"></textarea></label><div class="field-row"><label class="field"><span>类别</span><select name="category"><option value="project">项目</option><option value="study">学习</option><option value="knowledge">思考</option></select></label><label class="field"><span>状态</span><select name="status"><option value="ongoing">进行中</option><option value="completed">已完成</option></select></label></div><label class="field"><span>所属主题</span><input name="topic" required maxlength="100" /></label><label class="field"><span>标签，以逗号分隔</span><input name="tags" maxlength="400" placeholder="并发, 互斥, 实验" /></label><label class="field"><span>关联笔记或成果</span><textarea name="links" rows="2" placeholder="笔记标题 | /notes/文章路径/"></textarea><span class="field-hint">每行一项：标题 | 链接。支持站内路径和 https 地址。</span></label><p id="edit-error" class="form-error" role="alert" hidden></p><div class="dialog-actions"><button type="button" class="button" data-close-dialog>取消</button><button class="button primary" type="submit">保存整理</button></div></form></dialog>
+  <dialog id="checkpoint-dialog" aria-labelledby="checkpoint-title"><div class="dialog-heading"><h2 id="checkpoint-title">标记一个关键节点</h2><button class="icon-button" data-close-dialog aria-label="关闭标记窗口"><Icon name="close" /></button></div><p class="dialog-description">写下这一步为什么值得保留：一个新问题，一次判断，或让你改变理解的证据。</p><form id="checkpoint-form"><label class="field"><span>节点类型</span><select name="kind"><option value="insight">理解转折</option><option value="question">提出问题</option><option value="decision">作出选择</option><option value="verification">完成验证</option></select></label><label class="field"><span>一句话说明</span><input name="title" required maxlength="120" placeholder="例如：用实验确认了可见性问题" /></label><label class="field"><span>我的回顾</span><textarea name="body" rows="4" maxlength="4000" placeholder="当时我怎么想？这一步改变了什么？"></textarea></label><p id="checkpoint-error" class="form-error" role="alert" hidden></p><div class="dialog-actions"><button id="remove-checkpoint" type="button" class="button danger">移除标记</button><button class="button primary" type="submit">保存节点</button></div></form></dialog>
+  <dialog id="delete-dialog" aria-labelledby="delete-title"><div class="dialog-heading"><h2 id="delete-title">移除本地轨迹？</h2></div><p class="dialog-description">这只会移除当前浏览器保存的这条轨迹。建议先导出备份；原始会话文件不会改动。</p><div class="dialog-actions"><button class="button" data-close-dialog>取消</button><button class="button danger" id="confirm-delete">移除</button></div></dialog>
+  <noscript><p class="notice">阅读交互轨迹需要启用 JavaScript。你仍可从笔记页阅读已整理的内容。</p></noscript>
+  <script src="../../scripts/trajectory.ts"></script>
+</BaseLayout>
+<style is:global>
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    margin: 0 0 24px
+  }
+
+  .back-link>svg {
+    transform: rotate(180deg)
+  }
+
+  .detail-heading .page-title {
+    max-width: 780px;
+    font-size: 30px;
+    line-height: 1.5
+  }
+
+  .detail-heading .page-intro {
+    font-size: 13px;
+    line-height: 1.95
+  }
+
+  .detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 18px 0 0;
+    font-size: 10px;
+    color: var(--muted)
+  }
+
+  .detail-meta>span {
+    display: flex;
+    align-items: center;
+    gap: 6px
+  }
+
+  .detail-badges {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 6px
+  }
+
+  .detail-actions {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+    margin: 22px 0 27px
+  }
+
+  .detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 230px;
+    gap: 30px
+  }
+
+  .trajectory-body {
+    min-width: 0
+  }
+
+  .timeline-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+    margin-bottom: 18px
+  }
+
+  .view-tabs {
+    display: flex;
+    gap: 17px
+  }
+
+  .view-tabs button {
+    border: 0;
+    background: none;
+    padding: 8px 0;
+    font-size: 12px;
+    color: var(--muted);
+    border-bottom: 2px solid transparent
+  }
+
+  .view-tabs button.active {
+    color: var(--accent);
+    border-color: var(--accent);
+    font-weight: 500
+  }
+
+  .timeline-toolbar .check-label {
+    font-size: 10px
+  }
+
+  .detail-search {
+    margin-bottom: 24px;
+    position: relative
+  }
+
+  .detail-search>svg {
+    position: absolute;
+    left: 12px;
+    top: 13px;
+    color: #95a397
+  }
+
+  .detail-search input {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: white;
+    border-radius: 5px;
+    padding: 10px 13px 10px 37px;
+    font-size: 12px
+  }
+
+  .session-header {
+    display: flex;
+    gap: 9px;
+    align-items: center;
+    margin: 26px 0 20px;
+    padding: 10px 0;
+    font-size: 10px;
+    color: #829087;
+    border-bottom: 1px dashed #dde5de
+  }
+
+  .session-header .session-source {
+    font-weight: 500;
+    color: var(--body-text)
+  }
+
+  .session-header time {
+    margin-left: auto;
+    font: 9px var(--mono)
+  }
+
+  .timeline-message {
+    position: relative;
+    padding-left: 29px;
+    margin: 0 0 24px;
+    scroll-margin-top: 25px
+  }
+
+  .timeline-message::before {
+    position: absolute;
+    content: '';
+    left: 6px;
+    top: 8px;
+    bottom: -25px;
+    border-left: 1px solid #e3eae3
+  }
+
+  .timeline-message:last-child::before {
+    display: none
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 13px;
+    height: 13px;
+    background: #f9fbf8;
+    border: 3px solid #dee9df;
+    border-radius: 50%;
+    z-index: 1
+  }
+
+  .timeline-message.is-user .timeline-dot {
+    background: #5e8d6c;
+    border-color: #dfece1
+  }
+
+  .message-header {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 11px;
+    min-height: 29px;
+    margin-bottom: 7px
+  }
+
+  .message-header strong {
+    font-weight: 600
+  }
+
+  .message-header .message-model {
+    font: 9px var(--mono);
+    color: #97a199;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
+  }
+
+  .message-header time {
+    font: 9px var(--mono);
+    color: #9aa69c;
+    margin-left: auto
+  }
+
+  .message-header .message-tools {
+    display: flex;
+    gap: 2px;
+    margin-left: 3px
+  }
+
+  .message-tools button {
+    width: 27px;
+    height: 28px
+  }
+
+  .message-content {
+    font-size: 14px;
+    line-height: 1.95;
+    color: var(--body-text);
+    overflow-wrap: anywhere
+  }
+
+  .message-text {
+    white-space: pre-wrap;
+    margin: 0
+  }
+
+  .message-text:empty {
+    display: none
+  }
+
+  .message-text>code {
+    font-family: var(--mono);
+    font-size: .88em;
+    color: var(--inline-code);
+    background: #f0f2ed;
+    border-radius: 3px;
+    padding: 2px 4px
+  }
+
+  .message-code {
+    margin: 13px 0;
+    border: 1px solid #e0e7e0;
+    background: #f3f6f2;
+    border-radius: 5px;
+    overflow: hidden
+  }
+
+  .message-code>span {
+    display: block;
+    padding: 6px 12px;
+    border-bottom: 1px solid #e0e7e0;
+    font: 9px var(--mono);
+    color: #8b9b8e
+  }
+
+  .message-code pre {
+    padding: 12px 14px;
+    margin: 0;
+    overflow-x: auto;
+    font: 11px/1.85 var(--mono);
+    color: #47614b;
+    white-space: pre
+  }
+
+  .tool-message {
+    padding: 9px 12px;
+    background: #f1f4f1;
+    border: 1px solid #e5ebe4;
+    border-radius: 5px;
+    font-size: 11px;
+    color: var(--muted)
+  }
+
+  .tool-message summary {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 24px;
+    list-style: none
+  }
+
+  .tool-message summary::before {
+    content: '›';
+    font-size: 17px;
+    transition: transform .2s
+  }
+
+  .tool-message[open] summary::before {
+    transform: rotate(90deg)
+  }
+
+  .tool-message pre {
+    white-space: pre-wrap;
+    font: 10px/1.8 var(--mono);
+    overflow-wrap: anywhere;
+    max-height: 450px;
+    overflow: auto;
+    border-top: 1px solid var(--line);
+    padding-top: 11px
+  }
+
+  .checkpoint-note {
+    background: #f0f6ef;
+    border: 1px solid #dfebdd;
+    border-left: 2px solid #88ad8c;
+    border-radius: 4px;
+    margin-top: 14px;
+    padding: 11px 14px
+  }
+
+  .checkpoint-note>span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 9px;
+    color: #71917a
+  }
+
+  .checkpoint-note h4 {
+    margin: 5px 0 3px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #52705a
+  }
+
+  .checkpoint-note p {
+    font-size: 11px;
+    color: #6c826f;
+    margin: 0;
+    white-space: pre-wrap;
+    line-height: 1.9
+  }
+
+  .detail-aside {
+    min-width: 0
+  }
+
+  .aside-sticky {
+    position: sticky;
+    top: 24px
+  }
+
+  .aside-section {
+    padding: 0 0 21px;
+    margin-bottom: 21px;
+    border-bottom: 1px solid var(--line)
+  }
+
+  .aside-section h2 {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: #829187;
+    margin: 0 0 15px
+  }
+
+  .aside-property {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    font-size: 10px;
+    margin: 10px 0;
+    color: var(--muted)
+  }
+
+  .aside-property>strong {
+    text-align: right;
+    color: var(--body-text);
+    font-weight: 400;
+    overflow-wrap: anywhere
+  }
+
+  .checkpoint-index {
+    display: flex;
+    flex-direction: column;
+    gap: 13px
+  }
+
+  .checkpoint-index a {
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--body-text);
+    display: flex;
+    gap: 9px
+  }
+
+  .checkpoint-index a>span {
+    font: 9px var(--mono);
+    padding-top: 4px;
+    color: #99aa9c
+  }
+
+  .related-link {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--body-text);
+    margin: 8px 0
+  }
+
+  .related-link>svg:last-child {
+    margin-left: auto;
+    color: #9aaa9e
+  }
+
+  .source-warning {
+    font-size: 10px;
+    color: #8c805f;
+    line-height: 1.9;
+    margin: 7px 0
+  }
+
+  .timeline-empty {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 30px 0;
+    text-align: center
+  }
+
+  .message-target {
+    background: #eaf4e7;
+    border-radius: 4px;
+    outline: 6px solid #eaf4e7
+  }
+
+  .detail-notice {
+    margin-bottom: 23px
+  }
+
+  .timeline-tools-note {
+    font-size: 10px;
+    color: var(--muted);
+    margin: 0 0 15px
+  }
+
+  @media(max-width:1200px) {
+    .detail-layout {
+      grid-template-columns: minmax(0,1fr) 195px;
+      gap: 22px
+    }
+    .message-header .message-model {
+      max-width: 150px
+    }
+    .message-header time {
+      display: none
+    }
+  }
+
+  @media(max-width:950px) {
+    .detail-layout {
+      grid-template-columns: 1fr
+    }
+    .detail-aside {
+      order: -1
+    }
+    .aside-sticky {
+      position: static;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px
+    }
+    .aside-section {
+      margin-bottom: 8px;
+      padding-bottom: 15px
+    }
+    .aside-section:last-child {
+      grid-column: 1/-1
+    }
+    .checkpoint-index {
+      gap: 5px
+    }
+    .detail-heading .page-title {
+      font-size: 27px
+    }
+    .detail-actions {
+      margin-bottom: 20px
+    }
+  }
+
+  @media(max-width:560px) {
+    .detail-heading .page-title {
+      font-size: 25px
+    }
+    .message-header .message-model {
+      max-width: 125px;
+      font-size: 8px
+    }
+    .message-content {
+      font-size: 13px
+    }
+    .timeline-message {
+      padding-left: 23px
+    }
+    .timeline-toolbar {
+      gap: 8px
+    }
+    .view-tabs {
+      gap: 14px
+    }
+    .timeline-toolbar .check-label {
+      font-size: 9px
+    }
+    .detail-meta {
+      gap: 10px
+    }
+    .detail-aside {
+      display: none
+    }
+    .message-header {
+      gap: 6px
+    }
+    .message-header .message-tools {
+      margin-left: auto
+    }
+    .message-tools button {
+      width: 28px;
+      height: 34px
+    }
+    .timeline-tools-note {
+      font-size: 10px
+    }
+  }
+</style>

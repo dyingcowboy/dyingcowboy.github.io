@@ -1,0 +1,397 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ToolboxRadar from '../../components/ToolboxRadar.astro';
+import Icon from '../../components/Icon.astro';
+import { toolbox, displayModules, formatChars, MATURITY_LABEL } from '../../lib/toolbox';
+
+const modules = displayModules();
+const { totals } = toolbox;
+const started = totals.modulesWithContent;
+
+const generated = new Intl.DateTimeFormat('zh-CN', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+}).format(new Date(toolbox.generatedAt));
+---
+
+<BaseLayout
+  title="人生工具箱 — Xuanshi Xi"
+  description="人生工具箱：关于如何做事、如何与人相处、如何与自己相处的六模块框架。"
+>
+  <section class="tb-hero">
+    <div class="tb-copy">
+      <span class="eyebrow">LIFE TOOLBOX <span class="tb-slash">/</span> 人生工具箱</span>
+      <h1>把日子过好，<br /><span>也需要一套工具。</span></h1>
+      <p>
+        人活在两个世界里：外部的功利世界，和内部的精神世界。<br />
+        这个工具箱想做的，是在两边都过得好一点。
+      </p>
+      <dl class="tb-stats">
+        <div>
+          <dt>模块</dt>
+          <dd>{totals.modules}</dd>
+        </div>
+        <div>
+          <dt>已开始</dt>
+          <dd>{started}<span> / {totals.modules}</span></dd>
+        </div>
+        <div>
+          <dt>笔记</dt>
+          <dd>{totals.notes}</dd>
+        </div>
+        <div>
+          <dt>字数</dt>
+          <dd>{formatChars(totals.chars)}</dd>
+        </div>
+      </dl>
+    </div>
+    <div class="tb-visual">
+      <ToolboxRadar modules={modules} />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-heading">
+      <h2>六个模块 <span>SIX MODULES</span></h2>
+    </div>
+    <p class="tb-section-intro">
+      不包含各行各业的专业技能，但能帮着更快地提高技能。每个模块是一根柱子，内容从 Obsidian 同步过来；待建的模块就是还没动笔的那几根。
+    </p>
+
+    <div class="tb-grid">
+      {modules.map((module) => (
+        <article class:list={['tb-module', `is-${module.maturity}`]} id={`module-${module.slug}`}>
+          <header class="tb-module-head">
+            <span class="tb-module-index">{String(module.index).padStart(2, '0')}</span>
+            <span class="tb-module-en">{module.en}</span>
+            <span class="tb-module-status">{MATURITY_LABEL[module.maturity]}</span>
+          </header>
+          <h3>{module.short}</h3>
+          <p class="tb-module-blurb">{module.blurb}</p>
+          <footer class="tb-module-foot">
+            <span>{formatChars(module.chars)} 字</span>
+            <span class="tb-dot">·</span>
+            <span>{module.noteCount} 篇</span>
+          </footer>
+          {module.notes.length > 0 && (
+            <ul class="tb-note-list">
+              {module.notes.map((note) => (
+                <li>
+                  <span class="tb-note-title">{note.title}</span>
+                  {note.excerpt && <span class="tb-note-excerpt">{note.excerpt}</span>}
+                  <span class="tb-note-meta">{formatChars(note.chars)} 字</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </article>
+      ))}
+    </div>
+  </section>
+
+  {totals.inbox > 0 && (
+    <section class="section">
+      <div class="notice">
+        <Icon name="note" size={15} />
+        <span>
+          收件箱里还有 {totals.inbox} 篇未归类的素材（{formatChars(totals.inboxChars)} 字），整理后归到上面某个模块。
+        </span>
+      </div>
+    </section>
+  )}
+
+  <section class="section tb-source">
+    <p>
+      内容来自本地 Obsidian vault「{toolbox.vault}」，在 Obsidian 里编辑，运行
+      <code>npm run sync:toolbox</code> 同步后重新构建。
+      数据快照：{generated}。
+    </p>
+    <a class="tb-json-link" href="/toolbox/data.json">
+      机器可读接口 <Icon name="link" size={13} />
+    </a>
+  </section>
+</BaseLayout>
+
+<style>
+  .tb-hero {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 46px;
+    align-items: center;
+    padding: 13px 0 46px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .tb-slash {
+    color: #b0bcb3;
+    margin: 0 9px;
+  }
+
+  .tb-copy h1 {
+    font-size: clamp(30px, 3.4vw, 45px);
+    font-weight: 600;
+    line-height: 1.42;
+    letter-spacing: -1.5px;
+    margin: 20px 0 16px;
+  }
+
+  .tb-copy h1 > span {
+    color: #8a9990;
+  }
+
+  .tb-copy > p {
+    font-size: 13px;
+    line-height: 2;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .tb-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 26px;
+    margin: 26px 0 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+
+  .tb-stats dt {
+    font: 8px var(--mono);
+    letter-spacing: 0.7px;
+    color: #96a29a;
+    text-transform: uppercase;
+  }
+
+  .tb-stats dd {
+    margin: 5px 0 0;
+    font-family: var(--mono);
+    font-size: 19px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .tb-stats dd > span {
+    font-size: 11px;
+    color: #a4b0a8;
+  }
+
+  .tb-section-intro {
+    margin: -4px 0 22px;
+    max-width: 60ch;
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--muted);
+  }
+
+  .tb-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 13px;
+  }
+
+  .tb-module {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    padding: 16px 15px 15px;
+    transition: border-color 0.2s;
+  }
+
+  .tb-module:hover {
+    border-color: #b4c4b8;
+  }
+
+  /* 待建：用虚线 + 更淡的底，让「空」看起来是设计的一部分 */
+  .tb-module.is-empty {
+    background: #fafbfa;
+    border-style: dashed;
+    border-color: #dde5df;
+  }
+
+  .tb-module-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 11px;
+  }
+
+  .tb-module-index {
+    font: 9px var(--mono);
+    color: #a6b1a9;
+  }
+
+  .tb-module-en {
+    font: 8px var(--mono);
+    letter-spacing: 0.6px;
+    color: #9aa79e;
+    text-transform: uppercase;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tb-module-status {
+    font: 8px var(--mono);
+    letter-spacing: 0.4px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: #eef4ee;
+    color: #6d8a76;
+    flex-shrink: 0;
+  }
+
+  .is-empty .tb-module-status {
+    background: #f4f5f4;
+    color: #9aa79e;
+  }
+
+  .is-growing .tb-module-status,
+  .is-mature .tb-module-status {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .tb-module h3 {
+    margin: 0 0 7px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+
+  .is-empty h3 {
+    color: #55635c;
+  }
+
+  .tb-module-blurb {
+    margin: 0 0 14px;
+    font-size: 11px;
+    line-height: 1.8;
+    color: #7e8b84;
+  }
+
+  .tb-module-foot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 11px;
+    border-top: 1px solid #eef2ee;
+    font: 9px var(--mono);
+    color: #96a198;
+  }
+
+  .tb-dot {
+    color: #ccd6cd;
+  }
+
+  .tb-note-list {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .tb-note-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-left: 10px;
+    border-left: 2px solid var(--accent-soft);
+  }
+
+  .tb-note-title {
+    font-size: 11px;
+    color: var(--body-text);
+  }
+
+  .tb-note-excerpt {
+    font-size: 10px;
+    line-height: 1.7;
+    color: #8d9a90;
+  }
+
+  .tb-note-meta {
+    font: 8px var(--mono);
+    color: #a8b2aa;
+  }
+
+  .tb-source {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+
+  .tb-source p {
+    margin: 0;
+    font-size: 10px;
+    line-height: 1.9;
+    color: #96a198;
+  }
+
+  .tb-source code {
+    font: 9px var(--mono);
+    background: #f1f4f1;
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: #6b7a71;
+  }
+
+  .tb-json-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font: 9px var(--mono);
+    letter-spacing: 0.4px;
+    color: #8d9c90;
+    flex-shrink: 0;
+  }
+
+  .tb-json-link:hover {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  @media (max-width: 1200px) {
+    .tb-hero {
+      gap: 26px;
+    }
+
+    .tb-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 860px) {
+    .tb-hero {
+      grid-template-columns: 1fr;
+      gap: 30px;
+      padding-bottom: 32px;
+    }
+
+    .tb-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .tb-copy h1 {
+      font-size: 31px;
+    }
+
+    .tb-stats {
+      gap: 20px;
+    }
+  }
+</style>

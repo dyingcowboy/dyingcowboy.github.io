@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { publicLearning } from '../../lib/learning';
+import type { LearningProject } from '../../lib/learning';
+import { repositoryHtml, notesHtml, trajectorySummaryHtml } from '../../lib/learning-presentation';
+import '../../styles/learning.css';
+export function getStaticPaths() {
+  return publicLearning.projects.map((project) => ({ params: { project: project.id }, props: { project } }));
+}
+const { project } = Astro.props as { project: LearningProject };
+---
+<BaseLayout title={`${project.title} — Xuanshi Xi`}>
+  <div data-learning-detail={project.id}>
+    <section class="section">
+      <a class="back-link" href="/learning/">← 当前课程</a>
+      <h1 class="page-title">{project.title}</h1>
+      <p class="page-intro">{project.description}</p>
+      <p class="learning-sync" data-learning-sync>{publicLearning.generatedAt ? `公开快照 · ${new Date(publicLearning.generatedAt).toLocaleString('zh-CN')}` : '等待首次同步'}</p>
+      <p class="notice" id="learning-warnings" hidden></p>
+    </section>
+    <section class="section"><div class="section-heading"><h2>代码与版本 <span>REPOSITORIES</span></h2></div><div id="learning-repositories" set:html={repositoryHtml(project)} /></section>
+    <section class="section"><div class="section-heading"><h2>自己的笔记 <span>NOTES</span></h2></div><div id="learning-notes" set:html={notesHtml(publicLearning, project.id)} /></section>
+    <section class="section"><div class="section-heading"><h2>学习的经过 <span>TRAJECTORIES</span></h2></div><div id="learning-trajectories" set:html={trajectorySummaryHtml(project)} /></section>
+  </div>
+  <script>import '../../scripts/learning-page';</script>
+</BaseLayout>
