@@ -4,9 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import { publicTrajectories } from '../lib/archive';
 import { cardHtml, formatDate } from '../lib/presentation';
-import { displayModules, formatChars } from '../lib/toolbox';
 import { publicLearning } from '../lib/learning';
-const toolboxModules = displayModules();
 const notes = (await getCollection('notes', ({ data }) => !data.draft)).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 3);
 const recent = [...publicTrajectories].sort((a,b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? '')).slice(0,4);
 ---
@@ -36,16 +34,9 @@ const recent = [...publicTrajectories].sort((a,b) => (b.updatedAt ?? '').localeC
       <a class="topic-card" href="/learning/jyy-os-2026/"><div class="topic-icon blue"><Icon name="book" size={19} /></div><div><h3>JYY OS 2026</h3><p>操作系统 · 并发、抽象与系统</p></div><Icon name="upRight" size={15} /></a>
     </div>
   </section>
-  <section class="section home-toolbox">
-    <div class="section-heading"><h2>人生工具箱 <span>LIFE TOOLBOX</span></h2><a href="/toolbox/">打开工具箱 <Icon name="arrow" size={14} /></a></div>
-    <p class="home-toolbox-intro">做事、相处、和自己相处——六根柱子，边写边长。</p>
-    <div class="toolbox-strip">
-      {toolboxModules.map((module) => <a class="toolbox-chip" href={`/toolbox/#module-${module.slug}`} data-maturity={module.maturity}><span class="toolbox-chip-index">{String(module.index).padStart(2, '0')}</span><span class="toolbox-chip-name">{module.short}</span><span class="toolbox-chip-meta">{module.chars > 0 ? `${formatChars(module.chars)} 字` : '待建'}</span></a>)}
-    </div>
-  </section>
   <section class="section">
     <div class="section-heading"><h2>最近的轨迹 <span>THE PROCESS, NOT JUST THE OUTPUT</span></h2><a href="/trajectories/">查看全部 <Icon name="arrow" size={14} /></a></div>
-    <div class="notice home-notice"><Icon name="note" size={15} /><span id="home-archive-notice">当前公开轨迹为功能演示。本机同步或导入后，可以整理、检索和导出真实记录。</span></div>
+    <div class="notice home-notice"><Icon name="note" size={15} /><span id="home-archive-notice">从 2026 年 11 月 3 日重新开始记录。新的学习轨迹会陆续出现在这里。</span></div>
     <div class="trajectory-grid" id="recent-trajectories" set:html={recent.map((t) => cardHtml(t)).join('')} />
   </section>
   <section class="section home-notes">
@@ -317,75 +308,6 @@ const recent = [...publicTrajectories].sort((a,b) => (b.updatedAt ?? '').localeC
 
   .home-note-row>svg {
     color: #94a397
-  }
-
-  .home-toolbox-intro {
-    margin: -2px 0 16px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .toolbox-strip {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 9px;
-  }
-
-  .toolbox-chip {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    padding: 13px 11px;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--surface);
-    color: var(--text);
-    transition: border-color .2s, background .2s;
-  }
-
-  .toolbox-chip:hover {
-    text-decoration: none;
-    border-color: #b4c4b8;
-    background: #fcfdfc;
-  }
-
-  .toolbox-chip[data-maturity="empty"] {
-    border-style: dashed;
-    border-color: #dde5df;
-    background: #fafbfa;
-  }
-
-  .toolbox-chip-index {
-    font: 8px var(--mono);
-    color: #a6b1a9;
-  }
-
-  .toolbox-chip-name {
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1.45;
-  }
-
-  .toolbox-chip[data-maturity="empty"] .toolbox-chip-name {
-    color: #66746d;
-  }
-
-  .toolbox-chip-meta {
-    font: 8px var(--mono);
-    color: #a2aea6;
-    margin-top: auto;
-  }
-
-  @media(max-width:1200px) {
-    .toolbox-strip {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-
-  @media(max-width:560px) {
-    .toolbox-strip {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
 
   @media(max-width:1200px) {

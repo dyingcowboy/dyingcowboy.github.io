@@ -19,12 +19,12 @@ async function repository(directory, body = '# A note\n\nAn explanation.\n') {
   git(directory, 'add', '.'); git(directory, 'commit', '-qm', 'Initial fixture');
   git(directory, 'remote', 'add', 'origin', 'git@example.invalid:student/course.git');
 }
-function log(cwd, { id = 'test-session', message = 'Private fixture question', suffix = [] } = {}) {
+function log(cwd, { id = 'test-session', message = 'Private fixture question', suffix = [], timestamp = instant } = {}) {
   return [
-    { timestamp: instant, type: 'session_meta', payload: { id, cwd, timestamp: instant } },
-    { timestamp: instant, type: 'turn_context', payload: { model: 'fixture-model' } },
-    { timestamp: instant, type: 'response_item', payload: { type: 'message', id: 'first-user', role: 'user', content: [{ type: 'input_text', text: message }] } },
-    { timestamp: instant, type: 'response_item', payload: { type: 'message', id: 'first-answer', role: 'assistant', content: [{ type: 'output_text', text: 'Private fixture answer' }] } },
+    { timestamp, type: 'session_meta', payload: { id, cwd, timestamp } },
+    { timestamp, type: 'turn_context', payload: { model: 'fixture-model' } },
+    { timestamp, type: 'response_item', payload: { type: 'message', id: 'first-user', role: 'user', content: [{ type: 'input_text', text: message }] } },
+    { timestamp, type: 'response_item', payload: { type: 'message', id: 'first-answer', role: 'assistant', content: [{ type: 'output_text', text: 'Private fixture answer' }] } },
     ...suffix,
   ].map((row) => JSON.stringify(row)).join('\n') + '\n';
 }
@@ -43,6 +43,53 @@ async function fixture(t, { publish = true } = {}) {
   const source = join(records, 'session.jsonl');
   return { base, repo, records, source, options, renders: () => renders };
 }
+
+test('session boundary uses Shanghai midnight, excludes unknown dates, and preserves new sessions on repeat sync', async (t) => {
+  const f = await fixture(t);
+  f.options.config.sessionsSince = '2026-11-03T00:00:00+08:00';
+  await writeFile(f.source, log(f.repo, { timestamp: '2026-11-02T15:59:59.999Z' }));
+  await writeFile(join(f.records, 'today.jsonl'), log(f.repo, { id: 'today', timestamp: '2026-11-02T16:00:00.000Z' }));
+  await writeFile(join(f.records, 'undated.jsonl'), log(f.repo, { id: 'undated', timestamp: null }));
+  const first = await syncLearning(f.options);
+  assert.equal(first.archive.trajectories.length, 1);
+  assert.equal(first.archive.trajectories[0].sessions[0].id, 'today');
+  assert.equal(first.view.projects[0].sessionCount, 1);
+  assert.equal(first.stats.rawSnapshots, 2); // One note and only the included session.
+  assert.equal(first.errors.length, 0);
+  const again = await syncLearning(f.options);
+  assert.equal(again.changed, false);
+  assert.equal(again.stats.parsedFiles, 0);
+  assert.deepEqual(again.archive, first.archive);
+});
+
+test('changing session boundary removes cached and unavailable old sessions without losing notes', async (t) => {
+  const f = await fixture(t);
+  await writeFile(f.source, log(f.repo));
+  await writeFile(join(f.records, 'offline.jsonl'), log(f.repo, { id: 'offline' }));
+  assert.equal((await syncLearning(f.options)).archive.trajectories.length, 2);
+  await unlink(join(f.records, 'offline.jsonl'));
+  f.options.config.sessionsSince = '2026-11-03T00:00:00+08:00';
+  const reset = await syncLearning(f.options);
+  assert.deepEqual(reset.archive.trajectories, []);
+  assert.equal(reset.view.projects[0].sessionCount, 0);
+  assert.equal(reset.view.notes.length, 1);
+  assert.equal(reset.errors.length, 0);
+  const state = JSON.parse(await readFile(join(f.options.outputDir, 'state.json'), 'utf8'));
+  assert.equal(Object.values(state.sources).filter((source) => source.kind === 'session').length, 0);
+  // Touching or continuing an old session must not bring its old transcript back.
+  await writeFile(f.source, log(f.repo, { suffix: [{ timestamp: '2026-11-03T08:00:00Z', type: 'event_msg', payload: { type: 'user_message', message: 'Continue an old session' } }] }));
+  assert.deepEqual((await syncLearning(f.options)).archive.trajectories, []);
+});
+
+test('invalid or timezone-free session boundaries fail without replacing existing state', async (t) => {
+  const f = await fixture(t);
+  await syncLearning(f.options);
+  const before = await readFile(join(f.options.outputDir, 'state.json'), 'utf8');
+  for (const boundary of ['invalid', '2026-11-03', '2026-11-03T00:00:00', 123, null]) {
+    await assert.rejects(syncLearning({ ...f.options, config: { ...f.options.config, sessionsSince: boundary } }), /sessionsSince/);
+  }
+  assert.equal(await readFile(join(f.options.outputDir, 'state.json'), 'utf8'), before);
+});
 
 test('first sync builds full notes and matched sessions, keeps immutable raw snapshots private, and is idempotent', async (t) => {
   const f = await fixture(t);

@@ -6,10 +6,16 @@ export const publicTrajectories = publicData.trajectories as Trajectory[];
 
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('xuanshi-trajectories', 1);
-    request.onupgradeneeded = () =>
-      request.result.createObjectStore('trajectories', { keyPath: 'id' });
-    request.onsuccess = () => resolve(request.result);
+    const request = indexedDB.open('xuanshi-trajectories', 2);
+    request.onupgradeneeded = (event) => {
+      if (event.oldVersion === 0) request.result.createObjectStore('trajectories', { keyPath: 'id' });
+      // One-time reset on 2026-11-03; later imports survive page reloads.
+      else request.transaction!.objectStore('trajectories').clear();
+    };
+    request.onsuccess = () => {
+      request.result.onversionchange = () => request.result.close();
+      resolve(request.result);
+    };
     request.onerror = () => reject(new Error('无法打开本地档案。请检查浏览器是否允许本地存储。'));
     request.onblocked = () => reject(new Error('本地档案正在另一标签页中使用，请刷新后再试。'));
   });

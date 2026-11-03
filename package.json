@@ -10,7 +10,6 @@
     "check": "astro check",
     "test": "node --test tests/*.test.mjs",
     "import:records": "node scripts/import-trajectories.mjs",
-    "sync:toolbox": "node scripts/sync-toolbox.mjs",
     "sync:learning": "node scripts/sync-learning.mjs"
   },
   "dependencies": {

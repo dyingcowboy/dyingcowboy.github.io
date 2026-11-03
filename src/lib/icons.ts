@@ -24,8 +24,6 @@ export const paths = {
   flag: '<path d="M5 21V3m0 1c4-3 8 3 14 0v10c-6 3-10-3-14 0"/>',
   edit: '<path d="m16 3 5 5-12 12-6 1 1-6Z M13 6l5 5"/>',
   terminal: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="m7 9 3 3-3 3m6 0h4"/>',
-  toolbox:
-    '<path d="m12 3 8.5 4.5-8.5 4.5L3.5 7.5 12 3Z"/><path d="m3.5 12 8.5 4.5 8.5-4.5"/><path d="m3.5 16.5 8.5 4.5 8.5-4.5"/>',
   trash: '<path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/>',
 } as const;
 

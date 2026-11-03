@@ -2,6 +2,7 @@ import type { Trajectory } from './types';
 
 export interface LearningConfig {
   version: 1;
+  sessionsSince?: string;
   projects: {
     id: string;
     title: string;

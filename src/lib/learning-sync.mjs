@@ -35,6 +35,9 @@ function relativePath(value, label) {
 
 function validateConfig(config) {
   if (!config || config.version !== 1 || !Array.isArray(config.projects)) throw new Error('学习配置需要 version: 1 和 projects 列表。');
+  if (config.sessionsSince !== undefined && (typeof config.sessionsSince !== 'string'
+    || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(config.sessionsSince)
+    || !Number.isFinite(Date.parse(config.sessionsSince)))) throw new Error('sessionsSince 必须是带时区的有效时间。');
   const ids = new Set();
   for (const project of config.projects) {
     if (!project || !SAFE_ID.test(project.id) || ids.has(project.id)) throw new Error('课程 ID 必须有效且唯一。');
@@ -311,12 +314,30 @@ export async function syncLearning({ config, learningRoot, codexRoots = [], deep
     const compatible = previous?.projectionVersion === PROJECTION_VERSION;
     const sources = structuredClone(previous?.sources ?? {});
     const archive = new Map((previous?.archive.trajectories ?? []).map((trajectory) => [trajectory.id, trajectory]));
+    const sessionsSince = config.sessionsSince === undefined ? null : Date.parse(config.sessionsSince);
+    const includeSession = (session) => sessionsSince === null || (typeof session.startedAt === 'string' && Date.parse(session.startedAt) >= sessionsSince);
+    // Apply the boundary to retained records as well as newly parsed sources.
+    for (const [id, trajectory] of archive) {
+      const sessions = trajectory.sessions.filter(includeSession);
+      if (!sessions.length) { archive.delete(id); continue; }
+      if (sessions.length === trajectory.sessions.length) continue;
+      const messageIds = new Set(sessions.flatMap((session) => session.messages.map((message) => message.id)));
+      archive.set(id, { ...trajectory, sessions,
+        startedAt: sessions.map((session) => session.startedAt).filter(Boolean).sort()[0] ?? null,
+        updatedAt: sessions.map((session) => session.updatedAt).filter(Boolean).sort().at(-1) ?? null,
+        checkpoints: trajectory.checkpoints.filter((checkpoint) => messageIds.has(checkpoint.messageId)) });
+    }
+    for (const [key, source] of Object.entries(sources)) {
+      if (source.kind !== 'session') continue;
+      source.trajectoryIds = source.trajectoryIds.filter((id) => archive.has(id));
+      if (!source.trajectoryIds.length) delete sources[key];
+    }
     const notes = new Map((previous?.view.notes ?? []).map((note) => [note.id, note]));
     const errors = [];
     const projectWarnings = new Map(config.projects.map((project) => [project.id, []]));
     const addWarning = (projectId, warning) => { const list = projectWarnings.get(projectId); if (list) list.push(warning); };
     const statistics = { projects: config.projects.length, repositories: repositories.length, sources: 0, parsedFiles: 0, cachedFiles: 0, notes: 0, trajectories: 0, sessions: 0, rawSnapshots: 0 };
-    const mapping = hash(JSON.stringify(config.projects.map((project) => ({ id: project.id, title: project.title, repositories: project.repositories }))));
+    const mapping = hash(JSON.stringify({ sessionsSince, projects: config.projects.map((project) => ({ id: project.id, title: project.title, repositories: project.repositories })) }));
     const renderer = hash(String(renderNote.cacheVersion ?? renderNote));
     const readyNoteRepos = new Set();
     const failedNoteRepos = new Set();
@@ -423,6 +444,7 @@ export async function syncLearning({ config, learningRoot, codexRoots = [], deep
             for (const trajectory of parsed) {
               const groups = new Map();
               for (const session of trajectory.sessions) {
+                if (!includeSession(session)) continue;
                 const repository = await matchRepository(session.provenance?.cwd, repositories);
                 if (!repository) continue;
                 const values = groups.get(repository.projectId) ?? [];
@@ -437,7 +459,7 @@ export async function syncLearning({ config, learningRoot, codexRoots = [], deep
                 projectIds.add(projectId);
               }
             }
-            if (!assigned.size) continue;
+            if (!assigned.size) { unmatchedFiles.set(`${mapping}:${file}`, observed); continue; }
             if (await rawSnapshot(destination, content.bytes, content.sha256, 'session', timestamp)) statistics.rawSnapshots += 1;
             for (const [id, trajectory] of assigned) archive.set(id, mergeTrajectory(archive.get(id), trajectory));
             sources[key] = { kind: 'session', source: sourceType, path: file, root: sourceRoot, sha256: content.sha256, signature: content.signature, parserVersion: PARSER_VERSION, mapping, projectIds: [...projectIds], trajectoryIds: [...assigned.keys()], observedAt: timestamp, available: true };

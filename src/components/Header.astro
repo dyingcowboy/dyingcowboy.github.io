@@ -10,7 +10,6 @@ const nav: { href: string; label: string; en: string; icon: IconName; category?:
   { href: '/trajectories/?category=study', label: '学习', en: 'Study', icon: 'book', category: 'study' },
   { href: '/trajectories/?category=knowledge', label: '思考', en: 'Thinking', icon: 'spark', category: 'knowledge' },
   { href: '/notes/', label: '笔记', en: 'Notes', icon: 'note' },
-  { href: '/toolbox/', label: '工具箱', en: 'Toolbox', icon: 'toolbox' },
 ];
 const pathname = Astro.url.pathname;
 const active = (href: string) => href === '/' ? pathname === '/' : !href.includes('?') && pathname.startsWith(href);

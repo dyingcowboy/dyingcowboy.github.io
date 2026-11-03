@@ -2,7 +2,7 @@
 
 席轩石的个人学习档案，基于 Astro 构建为静态网站，沿用 GitHub Pages 部署。
 
-网站把项目、学习与日常思考组织为轨迹：阅读交互、标记理解的变化，再关联笔记和成果。现有笔记保留；首次打开时展示的四条轨迹均明确标为**演示数据**，不是用户的真实会话。
+网站把项目、学习与日常思考组织为轨迹：阅读交互、标记理解的变化，再关联笔记和成果。现有笔记保留；轨迹已于 2026 年 11 月 3 日清空，重新开始记录。
 
 ## 本地开发
 
@@ -28,6 +28,8 @@ npm run sync:learning -- --root /absolute/Learning --dsh-root /absolute/dsh/sess
 ```
 
 同步从 `~/.codex/sessions`、`~/.codex/archived_sessions` 和 `~/.dsh/sessions` 读取记录；`--codex-root` / `--dsh-root` 可重复指定其他位置。`LEARNING_SYNC=0 npm run dev` 可关闭开发服务器的定时采集。它只在本次进程运行时检查，不安装常驻服务、不自动提交或推送。
+
+`learning.config.json` 的 `sessionsSince` 当前设为北京时间 `2026-11-03T00:00:00+08:00`。自动同步仅收录从此时开始的新会话；旧会话即使继续追加消息也不会重新进入档案，无法确定起始时间的会话也不自动收录。手动导入仍可自行选择记录。浏览器档案升级到 v2 时会一次性清空旧导入；刷新后导入的新记录会正常保留。原始聊天和笔记不受影响，重置前的本机档案保存在 Git 忽略的 `local-data/backups/`。
 
 | 数据 | 保存在哪里 | 用途 |
 | --- | --- | --- |
@@ -128,42 +130,17 @@ npm run import:records -- /absolute/codex.jsonl /absolute/session.v4.jsonl.zstd 
 
 现有 `.github/workflows/deploy.yml` 会在 `main` 推送后执行测试、类型检查和构建，再部署到 GitHub Pages。开发分支和浏览器中的本地整理不会自动发布。
 
-## 人生工具箱
-
-「人生工具箱」是一套关于如何做事、如何与人相处、如何与自己相处的六模块框架，页面在 `/toolbox/`，机器可读快照在 `/toolbox/data.json`。
-
-内容不在这里手写，而是从本地 Obsidian vault（默认 `~/Dev/Notes/人工工具箱`）同步过来：
-
-```sh
-npm run sync:toolbox
-npm run sync:toolbox -- --vault /path/to/vault --out src/data/toolbox.json
-```
-
-同步器读取索引笔记（`人生工具箱.md`）里「概述」一节的有序列表来确认模块清单，再把同名笔记归到各模块，统计字数与成熟度，写出 `src/data/toolbox.json`。终端只打印数量统计，不打印正文。
-
-几点约定：
-
-- **vault 是唯一编辑入口**，站点只读。改内容在 Obsidian 里改，然后重新同步、构建。
-- 为什么不构建时直读 vault：GitHub Actions 是干净 checkout，拿不到本机路径。同步结果要提交进仓库，构建才可复现。
-- 空模块不会被隐藏，页面会把它显示成「待建」——这张图的意义就是「框架立起来了，哪一格还空着」。
-- `raw/` 下的剪藏算素材收件箱，不计入模块字数。
-- 页面底部显示数据快照日期，过期了一眼能看出来。
-
 ## 主要文件
 
 | 路径 | 用途 |
 | --- | --- |
-| `src/data/trajectories.json` | 构建时载入的公开轨迹；当前为四条演示 |
+| `src/data/trajectories.json` | 构建时载入的公开轨迹；已清空，等待重新选入 |
 | `learning.config.json` | 课程、仓库和笔记选择；路径相对于本机学习目录 |
 | `src/data/learning.json` | 可重新生成的公开课程与笔记视图 |
 | `src/lib/learning-sync.mjs` | 只读采集、来源匹配、缓存与原子发布 |
 | `scripts/sync-learning.mjs` | 手动或定时同步入口 |
-| `src/data/toolbox.json` | 人生工具箱快照，由 `npm run sync:toolbox` 生成 |
-| `src/lib/toolbox-parse.mjs` | Obsidian 解析：索引笔记、模块清单、wikilink、字数 |
-| `scripts/sync-toolbox.mjs` | 工具箱同步入口 |
-| `src/lib/toolbox.ts` | 模块展示文案与雷达图几何 |
 | `src/content/notes/` | 原有 Markdown 笔记 |
 | `src/lib/importers.mjs` | 记录解析与统一格式校验 |
 | `scripts/import-trajectories.mjs` | 命令行导入入口 |
-| `tests/` | 导入、合并、工具箱解析等行为的测试 |
+| `tests/` | 导入、合并等行为的测试 |
 | `local-data/` | 本地转换结果，Git 忽略 |
