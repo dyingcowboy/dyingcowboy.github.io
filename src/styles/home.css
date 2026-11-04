@@ -11,14 +11,14 @@
 
 .hero-copy h1 {
   max-width: 10em;
-  font-size: clamp(32px, 3.7vw, 48px);
+  font-size: clamp(40px, 4.2vw, 56px);
   line-height: 1.5;
   letter-spacing: -0.03em;
   text-wrap: balance;
   margin: 21px 0;
 }
 
-.hero-intro { font-size: var(--text-base); line-height: 1.9; color: var(--body-text); }
+.hero-intro { font-size: var(--text-reading); line-height: 1.9; color: var(--body-text); }
 .hero-intro p { margin: 0; }
 .hero-intro p + p { margin-top: 0.3em; }
 
@@ -39,8 +39,8 @@
 .process-steps { list-style: none; margin: 0; padding: 0; }
 .sketch-line { display: flex; align-items: center; gap: 14px; }
 .sketch-line > div { min-width: 0; }
-.sketch-line strong { display: block; font-size: var(--text-base); font-weight: 500; }
-.sketch-line div > span { display: block; font-size: var(--text-sm); color: var(--muted); margin-top: 4px; line-height: 1.65; }
+.sketch-line strong { display: block; font-size: var(--text-lg); font-weight: 500; }
+.sketch-line div > span { display: block; font-size: var(--text-base); color: var(--muted); margin-top: 4px; line-height: 1.65; }
 
 .sketch-number {
   font: var(--text-xs) var(--mono);
@@ -77,8 +77,8 @@
 .topic-card > div:not(.topic-icon) { min-width: 0; flex: 1; }
 .topic-card > svg { color: var(--muted); margin-top: 4px; }
 .topic-icon { background: #edf4ed; color: #6d9275; border-radius: 6px; display: grid; place-items: center; width: 34px; height: 38px; flex-shrink: 0; }
-.topic-card h3 { font-size: var(--text-base); margin: 0 0 8px; line-height: 1.6; }
-.topic-card p { font-size: var(--text-sm); line-height: 1.8; color: var(--muted); margin: 0; overflow-wrap: anywhere; }
+.topic-card h3 { font-size: var(--text-lg); margin: 0 0 8px; line-height: 1.6; }
+.topic-card p { font-size: var(--text-base); line-height: 1.8; color: var(--muted); margin: 0; overflow-wrap: anywhere; }
 .home-notice { margin-bottom: 18px; }
 
 .home-note-row { display: flex; align-items: center; gap: 18px; padding: 20px 0; border-bottom: 1px solid var(--line); }
@@ -87,7 +87,7 @@
 .home-note-row > div { flex: 1; min-width: 0; }
 .home-note-row h3 { margin: 0 0 6px; font-size: var(--text-lg); line-height: 1.7; }
 .home-note-row h3 a { color: var(--text); overflow-wrap: anywhere; }
-.home-note-row > div > span { color: var(--muted); font-size: var(--text-sm); }
+.home-note-row > div > span { color: var(--muted); font-size: var(--text-base); }
 .home-note-row time { font: var(--text-xs) var(--mono); color: var(--muted); flex-shrink: 0; }
 .home-note-row > svg { color: var(--muted); }
 
@@ -102,7 +102,8 @@
 
 @media (max-width: 650px) {
   .home-hero { grid-template-columns: 1fr; gap: 30px; padding-bottom: 30px; }
-  .hero-copy h1 { max-width: 9em; font-size: 36px; }
+  .hero-copy h1 { max-width: 9em; font-size: 40px; }
+  .hero-intro { font-size: var(--text-base); }
   .hero-actions { flex-wrap: wrap; gap: 16px 24px; }
   .hero-caption { font-size: var(--text-sm); }
   .process-sketch { padding: 24px 20px; }
