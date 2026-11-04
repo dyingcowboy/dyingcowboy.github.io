@@ -1,11 +1,23 @@
 ---
+import { getEntry, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
 import Icon from '../../components/Icon.astro';
 import { publicTrajectories } from '../../lib/archive';
 import { cardHtml } from '../../lib/presentation';
+
+const page = await getEntry('pages', 'trajectories');
+if (!page || page.data.kind !== 'page') throw new Error('缺少轨迹索引内容：src/content/pages/trajectories.md');
+const { Content } = await render(page);
 ---
-<BaseLayout title="轨迹 — Xuanshi Xi">
-  <header class="page-heading"><div><span class="eyebrow">THE LEARNING LOG</span><h1 class="page-title">每一步，都有迹可循。</h1><p class="page-intro">从提出问题到形成理解。沿着一次次交互，回看学习与实践的过程。</p></div><div class="heading-actions"><button class="button" id="export-records"><Icon name="download" size={15} />导出本地</button><button class="button primary" id="open-import"><Icon name="upload" size={15} />导入记录</button></div></header>
+<BaseLayout title={page.data.title} description={page.data.description}>
+  <PageHeading title={page.data.title} eyebrow={page.data.eyebrow}>
+    <Content />
+    <Fragment slot="actions">
+      <button class="button" id="export-records"><Icon name="download" size={15} />导出本地</button>
+      <button class="button primary" id="open-import"><Icon name="upload" size={15} />导入记录</button>
+    </Fragment>
+  </PageHeading>
   <div class="archive-toolbar"><label class="archive-search"><Icon name="search" size={17} /><span class="sr-only">搜索标题、主题或交互内容</span><input id="archive-search" data-archive-search type="search" placeholder="搜索问题、主题，或一段交互…" autocomplete="off" /><kbd>⌘ K</kbd></label><label class="filter-select"><span class="sr-only">按来源筛选</span><select id="source-filter"><option value="">全部来源</option><option value="codex">Codex</option><option value="deepseek">DeepSeek harness</option></select></label><label class="filter-select"><span class="sr-only">按模型筛选</span><select id="model-filter"><option value="">全部模型</option></select></label></div>
   <div class="archive-tabs-row"><div class="archive-tabs" role="group" aria-label="按类别筛选"><button data-category="" class="active" aria-pressed="true">全部<span></span></button><button data-category="project" aria-pressed="false">项目<span></span></button><button data-category="study" aria-pressed="false">学习<span></span></button><button data-category="knowledge" aria-pressed="false">思考<span></span></button></div><label class="filter-select compact"><span class="sr-only">按状态筛选</span><select id="status-filter"><option value="">全部状态</option><option value="ongoing">进行中</option><option value="completed">已完成</option></select></label></div>
   <div class="archive-summary"><p id="result-count" role="status" aria-live="polite">正在载入轨迹…</p><div><label class="check-label"><input type="checkbox" id="hide-demos" />隐藏演示</label><button class="text-button" id="reset-filters">重置筛选</button></div></div>
@@ -54,7 +66,7 @@ import { cardHtml } from '../../lib/presentation';
     background: none;
     outline: none;
     width: 100%;
-    font-size: 12px;
+    font-size: var(--text-xs);
     color: var(--text);
     min-height: 42px
   }
@@ -69,7 +81,7 @@ import { cardHtml } from '../../lib/presentation';
   }
 
   .archive-search kbd {
-    font: 9px var(--mono);
+    font: var(--text-xs) var(--mono);
     white-space: nowrap;
     padding: 2px 5px;
     border: 1px solid #e4e9e4;
@@ -84,7 +96,7 @@ import { cardHtml } from '../../lib/presentation';
     border-radius: 5px;
     background: white;
     padding: 0 27px 0 11px;
-    font-size: 11px;
+    font-size: var(--text-xs);
     color: var(--muted);
     max-width: 180px
   }
@@ -108,7 +120,7 @@ import { cardHtml } from '../../lib/presentation';
     border: 0;
     border-bottom: 2px solid transparent;
     background: transparent;
-    font-size: 12px;
+    font-size: var(--text-xs);
     color: var(--muted);
     padding: 0 0 8px;
     display: flex;
@@ -123,7 +135,7 @@ import { cardHtml } from '../../lib/presentation';
   }
 
   .archive-tabs button>span {
-    font: 9px var(--mono);
+    font: var(--text-xs) var(--mono);
     color: #9ca79e
   }
 
@@ -141,7 +153,7 @@ import { cardHtml } from '../../lib/presentation';
     gap: 16px;
     margin: 17px 0;
     color: var(--muted);
-    font-size: 10px
+    font-size: var(--text-xs)
   }
 
   .archive-summary p {
@@ -158,7 +170,7 @@ import { cardHtml } from '../../lib/presentation';
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 11px;
+    font-size: var(--text-xs);
     color: var(--muted);
     cursor: pointer
   }
@@ -174,7 +186,7 @@ import { cardHtml } from '../../lib/presentation';
     border: 0;
     background: transparent;
     color: var(--accent);
-    font-size: 11px;
+    font-size: var(--text-xs);
     min-height: 30px
   }
 
@@ -192,7 +204,7 @@ import { cardHtml } from '../../lib/presentation';
 
   .archive-footnote p {
     margin: 0;
-    font-size: 10px;
+    font-size: var(--text-xs);
     line-height: 1.9
   }
 
@@ -218,12 +230,12 @@ import { cardHtml } from '../../lib/presentation';
   }
 
   .file-drop strong {
-    font-size: 13px;
+    font-size: var(--text-sm);
     font-weight: 500
   }
 
   .file-drop>span {
-    font-size: 10px;
+    font-size: var(--text-xs);
     color: #8b9a8d
   }
 
@@ -276,17 +288,17 @@ import { cardHtml } from '../../lib/presentation';
       flex: none
     }
     .archive-summary {
-      font-size: 10px;
+      font-size: var(--text-xs);
       align-items: flex-start
     }
     .archive-summary>div {
       gap: 10px
     }
     .check-label {
-      font-size: 10px
+      font-size: var(--text-xs)
     }
     .archive-tabs button {
-      font-size: 12px
+      font-size: var(--text-xs)
     }
   }
 </style>

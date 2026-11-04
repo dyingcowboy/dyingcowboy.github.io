@@ -1,0 +1,22 @@
+---
+interface Props {
+  title: string;
+  eyebrow?: string;
+}
+
+const { title, eyebrow } = Astro.props;
+---
+
+<header class="page-heading">
+  <div>
+    {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+    <h1 class="page-title">{title}</h1>
+    {Astro.slots.has('default') && <div class="page-intro"><slot /></div>}
+  </div>
+  {Astro.slots.has('actions') && <div class="heading-actions"><slot name="actions" /></div>}
+</header>
+
+<style>
+  .page-intro :global(p) { margin: 0; }
+  .page-intro :global(p + p) { margin-top: 0.75em; }
+</style>

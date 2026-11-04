@@ -1,21 +1,17 @@
 ---
+import { getEntry, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { profile } from '../data/profile';
+import PageHeading from '../components/PageHeading.astro';
+import '../styles/prose.css';
+
+const page = await getEntry('pages', 'about');
+if (!page || page.data.kind !== 'page') throw new Error('缺少关于页内容：src/content/pages/about.md');
+const { Content } = await render(page);
 ---
 
-<BaseLayout title={`About — ${profile.name}`}>
-  <section class="section">
-    <h2 class="page-title">About</h2>
-    <p class="page-intro">{profile.bio}</p>
-  </section>
-
-  <section class="section prose-width">
-    <h2 class="section-label">Current Focus</h2>
-    <p>{profile.focus}</p>
-  </section>
-
-  <section class="section prose-width">
-    <h2 class="section-label">Currently</h2>
-    <p>{profile.currently}</p>
-  </section>
+<BaseLayout title={page.data.title} description={page.data.description}>
+  <article class="article">
+    <PageHeading title={page.data.title} eyebrow={page.data.eyebrow} />
+    <div class="prose"><Content /></div>
+  </article>
 </BaseLayout>

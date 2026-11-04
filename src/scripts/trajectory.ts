@@ -18,6 +18,7 @@ import {
   renderContent,
 } from '../lib/presentation';
 import { icon } from '../lib/icons';
+import { siteTitle } from '../data/site';
 import type { Trajectory, Message, Checkpoint, Category, Session } from '../lib/types';
 
 const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -135,7 +136,7 @@ function render(): void {
     }
     <section class="aside-section"><h2>原始来源</h2>${current.sessions.map((session) => `<details class="source-provenance"><summary>${e(sourceLabels[session.source])} · ${session.messages.length} 条记录</summary><p class="meta">会话 ID<br /><code>${e(session.id)}</code></p><p class="meta">模型：${e(session.models.join(' / ') || '未记录')}</p>${provenanceHtml(session)}${session.warnings.map((warning) => `<p class="source-warning">${e(warning)}</p>`).join('')}</details>`).join('')}</section></div></aside></div>`;
   root.setAttribute('aria-busy', 'false');
-  document.title = `${current.title} — Xuanshi Xi`;
+  document.title = siteTitle(current.title);
   el<HTMLInputElement>('show-tools').addEventListener('change', (event) => {
     toolsVisible = (event.target as HTMLInputElement).checked;
     renderTimeline();

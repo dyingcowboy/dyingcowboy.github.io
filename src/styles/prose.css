@@ -17,14 +17,14 @@
 .article-meta {
   margin-top: 0.9rem;
   color: var(--muted);
-  font-size: 0.86rem;
+  font-size: var(--text-sm);
 }
 
 .prose {
   width: 100%;
   color: var(--body-text);
-  font-size: 1.03rem;
-  line-height: 1.72;
+  font-size: var(--text-reading);
+  line-height: 1.85;
   overflow-wrap: break-word;
 }
 
@@ -65,9 +65,9 @@
 
 .prose strong { color: var(--text); }
 
-.prose code {
+.prose code:not(:where(.katex *, .mermaid, .mermaid *)) {
   font-family: var(--mono);
-  font-size: 0.9em;
+  font-size: 1em;
 }
 
 .prose :not(pre) > code {
@@ -87,13 +87,15 @@
   border-radius: 9px;
   background: #282c34 !important;
   color: #e5e7eb;
-  line-height: 1.55;
-  font-size: 0.92rem;
+  line-height: 1.65;
+  font-size: 1rem;
 }
 
 .prose pre code {
   padding: 0;
   background: transparent;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .prose .mermaid {
@@ -124,7 +126,7 @@
   display: block;
   overflow-x: auto;
   border-collapse: collapse;
-  font-size: 0.92rem;
+  font-size: 1rem;
 }
 
 .prose th,
@@ -159,7 +161,7 @@
 
 @media (max-width: 680px) {
   .article-header { padding-bottom: 1.7rem; }
-  .prose { font-size: 1rem; line-height: 1.68; }
+  .prose { font-size: var(--text-base); line-height: 1.8; }
   .prose p { text-align: left; }
   .prose pre { padding: 1rem; border-radius: 7px; }
 }

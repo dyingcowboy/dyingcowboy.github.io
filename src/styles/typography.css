@@ -1,0 +1,49 @@
+@font-face {
+  font-family: "Kalam";
+  src: url("/fonts/kalam-latin-regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Merienda One";
+  src: url("/fonts/merienda-one-latin-regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fira Mono";
+  src: url("/fonts/fira-mono-latin-regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  --text-xs: 14px;
+  --text-sm: 16px;
+  --text-base: 18px;
+  --text-lg: 20px;
+  --text-reading: 20px;
+  --text-section: 22px;
+  --sans:
+    "Kalam", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "Noto Sans CJK SC", sans-serif;
+  --heading:
+    "Merienda One", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "Noto Sans CJK SC", sans-serif;
+  --mono:
+    "Fira Mono", "SFMono-Regular", Consolas, "Liberation Mono",
+    "PingFang SC", "Microsoft YaHei", monospace;
+}
+
+:where(h1, h2, h3, h4, h5, h6):not(:where(.katex *, .mermaid *)) {
+  font-family: var(--heading);
+}
+
+:where(code, kbd, pre, samp):not(:where(.katex, .katex *, .mermaid, .mermaid *)) {
+  font-family: var(--mono);
+}

@@ -9,7 +9,7 @@ export function getStaticPaths() {
 }
 const { project } = Astro.props as { project: LearningProject };
 ---
-<BaseLayout title={`${project.title} — Xuanshi Xi`}>
+<BaseLayout title={project.title}>
   <div data-learning-detail={project.id}>
     <section class="section">
       <a class="back-link" href="/learning/">← 当前课程</a>

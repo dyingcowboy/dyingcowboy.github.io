@@ -1,7 +1,9 @@
 ---
+import '../styles/typography.css';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { site, siteTitle } from '../data/site';
 
 interface Props {
   title?: string;
@@ -9,8 +11,8 @@ interface Props {
 }
 
 const {
-  title = 'Xuanshi Xi',
-  description = '席轩石的学习与实践档案。记录项目、学习和思考，以及每一步如何形成。',
+  title,
+  description = site.description,
 } = Astro.props;
 ---
 
@@ -22,13 +24,13 @@ const {
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title}</title>
+    <title>{siteTitle(title)}</title>
   </head>
   <body>
     <a class="skip-link" href="#main-content">跳到主要内容</a>
     <Header />
     <div class="site-workspace">
-      <div class="workspace-bar"><span>PERSONAL LEARNING ARCHIVE</span><a href="/trajectories/?import=1">本地导入 <span aria-hidden="true">↗</span></a></div>
+      <div class="workspace-bar"><span>{site.workspace.label}</span><a href={site.workspace.importHref}>{site.workspace.importLabel} <span aria-hidden="true">↗</span></a></div>
       <main id="main-content" class="site-shell">
         <slot />
       </main>

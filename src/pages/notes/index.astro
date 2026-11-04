@@ -1,9 +1,14 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
 import { publicLearning } from '../../lib/learning';
 import { notesHtml } from '../../lib/learning-presentation';
 import '../../styles/learning.css';
+
+const page = await getEntry('pages', 'notes');
+if (!page || page.data.kind !== 'page') throw new Error('缺少笔记索引内容：src/content/pages/notes.md');
+const { Content } = await render(page);
 
 const notes = (await getCollection('notes', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -15,11 +20,9 @@ const formatDate = (date: Date) => new Intl.DateTimeFormat('en-US', {
 }).format(date);
 ---
 
-<BaseLayout title="笔记 — Xuanshi Xi">
+<BaseLayout title={page.data.title} description={page.data.description}>
   <section class="section">
-    <span class="eyebrow">NOTES & UNDERSTANDING</span>
-    <h1 class="page-title">把理解，留成文字。</h1>
-    <p class="page-intro">从学习、实现和调试中沉淀的阶段笔记。<a href="/trajectories/">在轨迹中回看问题怎样展开 →</a></p>
+    <PageHeading title={page.data.title} eyebrow={page.data.eyebrow}><Content /></PageHeading>
   </section>
 
   <section class="section archive-list" aria-label="课程笔记"><div class="section-heading"><h2>课程中的个人笔记</h2></div><div data-learning-notes set:html={notesHtml(publicLearning)} /></section>

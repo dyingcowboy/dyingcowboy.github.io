@@ -1,1 +1,9 @@
-Structured personal data belongs here. Pages should render these values rather than duplicate profile or project text.
+# 结构化站点数据
+
+| 文件 | 职责 |
+| --- | --- |
+| `site.ts` | 站点身份、默认说明、导航、侧栏与页脚；`siteTitle()` 统一组合页面标题 |
+| `learning.json` | 同步生成的公开课程与笔记视图；修改来源、配置或生成逻辑后重建，不手工修补 |
+| `trajectories.json` | 用户明确选入的公开轨迹；不自动发布本机原始会话 |
+
+页面正文和可编辑元数据放在 [`src/content/pages/`](../content/pages/)，编辑方式见[内容说明](../content/README.md)。页面从这些来源派生展示结果，不复制维护姓名、课程标题或来源状态。私人归档留在 Git 忽略的 `local-data/` 或浏览器本地存储中。

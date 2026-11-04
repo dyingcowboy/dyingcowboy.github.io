@@ -1,27 +1,17 @@
 ---
-import { profile } from '../data/profile';
+import { site } from '../data/site';
 import Icon from './Icon.astro';
-import type { IconName } from '../lib/icons';
-const nav: { href: string; label: string; en: string; icon: IconName; category?: string }[] = [
-  { href: '/', label: '概览', en: 'Overview', icon: 'grid' },
-  { href: '/learning/', label: '当前课程', en: 'Courses', icon: 'book' },
-  { href: '/trajectories/', label: '全部轨迹', en: 'Trajectories', icon: 'route' },
-  { href: '/trajectories/?category=project', label: '项目', en: 'Projects', icon: 'folder', category: 'project' },
-  { href: '/trajectories/?category=study', label: '学习', en: 'Study', icon: 'book', category: 'study' },
-  { href: '/trajectories/?category=knowledge', label: '思考', en: 'Thinking', icon: 'spark', category: 'knowledge' },
-  { href: '/notes/', label: '笔记', en: 'Notes', icon: 'note' },
-];
 const pathname = Astro.url.pathname;
 const active = (href: string) => href === '/' ? pathname === '/' : !href.includes('?') && pathname.startsWith(href);
 ---
 
 <header class="site-header">
   <div class="site-header-inner">
-    <a class="site-brand" href="/" aria-label="席轩石，返回首页"><span class="brand-mark" aria-hidden="true">x<span>.</span></span><span class="brand-name">{profile.name}<span>{profile.chineseName} / 学习与实践</span></span></a>
-    <p class="nav-section-label">WORKSPACE</p>
+    <a class="site-brand" href="/" aria-label={`${site.chineseName}，返回首页`}><span class="brand-mark" aria-hidden="true">{site.mark}<span>.</span></span><span class="brand-name">{site.name}<span>{site.chineseName} / {site.subtitle}</span></span></a>
+    <p class="nav-section-label">{site.sidebar.label}</p>
     <nav class="site-nav" aria-label="主要导航">
-      {nav.map((item) => <a href={item.href} class:list={{ active: active(item.href) }} data-nav-category={item.category ?? ''} data-nav-path={item.href} aria-current={active(item.href) ? 'page' : undefined}><Icon name={item.icon} /><span>{item.label}</span><span class="nav-en">{item.en}</span></a>)}
+      {site.navigation.map((item) => <a href={item.href} class:list={{ active: active(item.href) }} data-nav-category={item.category ?? ''} data-nav-path={item.href} aria-current={active(item.href) ? 'page' : undefined}><Icon name={item.icon} /><span>{item.label}</span><span class="nav-en">{item.en}</span></a>)}
     </nav>
-    <div class="sidebar-bottom"><p class="sidebar-note">Keep the questions.<br />Show the process.</p><a href="/about/" class="sidebar-link"><Icon name="user" />关于我<Icon name="upRight" size={14} /></a><a href={profile.links.github} class="sidebar-link"><Icon name="github" />GitHub<Icon name="upRight" size={14} /></a><span class="sidebar-caption">一份持续生长的个人档案</span></div>
+    <div class="sidebar-bottom"><p class="sidebar-note">{site.sidebar.note.map((line, index) => <Fragment>{index > 0 && <br />}{line}</Fragment>)}</p><a href={site.sidebar.aboutHref} class="sidebar-link"><Icon name="user" />{site.sidebar.aboutLabel}<Icon name="upRight" size={14} /></a><a href={site.links.github} class="sidebar-link"><Icon name="github" />GitHub<Icon name="upRight" size={14} /></a><span class="sidebar-caption">{site.sidebar.caption}</span></div>
   </div>
 </header>

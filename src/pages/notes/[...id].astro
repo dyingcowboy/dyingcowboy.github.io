@@ -25,7 +25,7 @@ const date = new Intl.DateTimeFormat('en-US', {
 }).format(note.data.date);
 ---
 
-<BaseLayout title={`${note.data.title} — Xuanshi Xi`} description={note.data.description ?? note.data.title}>
+<BaseLayout title={note.data.title} description={note.data.description ?? note.data.title}>
   <article class="article">
     <header class="article-header">
       <h1 class="article-title">{note.data.title}</h1>

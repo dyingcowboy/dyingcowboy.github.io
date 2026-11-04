@@ -1,6 +1,7 @@
 import { notesHtml, projectHtml, repositoryHtml, trajectorySummaryHtml } from '../lib/learning-presentation';
 import type { LearningView, LearningNote } from '../lib/learning';
 import { showToast } from '../lib/archive';
+import { siteTitle } from '../data/site';
 
 if (import.meta.env.DEV) {
   fetch('/__learning/view.json', { cache: 'no-store' }).then(async (response) => {
@@ -38,7 +39,7 @@ if (import.meta.env.DEV) {
       document.getElementById('local-note-title')!.textContent = note.title;
       document.getElementById('local-note-source')!.textContent = `${note.repoId} / ${note.path} · ${note.commit?.slice(0, 10) ?? '未提交版本'}`;
       noteTarget.innerHTML = note.html ?? '';
-      document.title = `${note.title} — Xuanshi Xi`;
+      document.title = siteTitle(note.title);
     }).catch((error: Error) => { noteTarget.textContent = error.message; });
   }
 }
